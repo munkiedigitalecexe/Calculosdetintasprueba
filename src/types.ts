@@ -18,6 +18,7 @@ export interface ProjectComponent {
   quantity: number; // Number of repetitions/strips
   unitsPerStrip?: number; // e.g., 40 units per 1.5x0.41m strip
   totalUnitsTarget?: number; // e.g., 20000 units
+  rollLength?: number; // in meters
   rollsNeeded?: number; // calculated if ROLL
   inks: InkComponent[];
   area: number;

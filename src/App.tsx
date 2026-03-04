@@ -52,21 +52,23 @@ export default function App() {
   const [newComp, setNewComp] = useState({
     name: '',
     substrateType: SubstrateType.SHEET,
-    width: 0,
-    height: 0,
-    quantity: 1,
-    unitsPerStrip: 0,
-    totalUnitsTarget: 0,
-    rollLength: DEFAULT_ROLL_LENGTH,
-    inks: INITIAL_INKS.map(ink => ({ ...ink })),
+    width: '0',
+    height: '0',
+    quantity: '1',
+    unitsPerStrip: '0',
+    totalUnitsTarget: '0',
+    rollLength: String(DEFAULT_ROLL_LENGTH),
+    inks: INITIAL_INKS.map(ink => ({ ...ink, ml: '0' })),
   });
 
   const [productionMode, setProductionMode] = useState(false);
 
   useEffect(() => {
-    if (productionMode && newComp.unitsPerStrip > 0 && newComp.totalUnitsTarget > 0) {
-      const calculatedQty = Math.ceil(newComp.totalUnitsTarget / newComp.unitsPerStrip);
-      setNewComp(prev => ({ ...prev, quantity: calculatedQty }));
+    const units = parseFloat(newComp.unitsPerStrip);
+    const target = parseFloat(newComp.totalUnitsTarget);
+    if (productionMode && units > 0 && target > 0) {
+      const calculatedQty = Math.ceil(target / units);
+      setNewComp(prev => ({ ...prev, quantity: String(calculatedQty) }));
     }
   }, [productionMode, newComp.unitsPerStrip, newComp.totalUnitsTarget]);
 
@@ -90,18 +92,34 @@ export default function App() {
       alert("Asigne un nombre al componente (ej: Rótulo, Cenefa)");
       return;
     }
-    const area = newComp.width * newComp.height * newComp.quantity;
-    const inkMl = newComp.inks.reduce((sum, ink) => sum + ink.ml, 0) * newComp.quantity;
+
+    const width = parseFloat(newComp.width) || 0;
+    const height = parseFloat(newComp.height) || 0;
+    const quantity = parseFloat(newComp.quantity) || 0;
+    const rollLength = parseFloat(newComp.rollLength) || 0;
+    const unitsPerStrip = parseFloat(newComp.unitsPerStrip) || 0;
+    const totalUnitsTarget = parseFloat(newComp.totalUnitsTarget) || 0;
+
+    const area = width * height * quantity;
+    const inkMl = newComp.inks.reduce((sum, ink) => sum + (parseFloat(ink.ml as any) || 0), 0) * quantity;
 
     let rollsNeeded = 0;
-    if (newComp.substrateType === SubstrateType.ROLL && newComp.height > 0 && newComp.rollLength > 0) {
-      const stripsPerRoll = Math.floor(newComp.rollLength / newComp.height);
-      rollsNeeded = stripsPerRoll > 0 ? newComp.quantity / stripsPerRoll : 0;
+    if (newComp.substrateType === SubstrateType.ROLL && height > 0 && rollLength > 0) {
+      const stripsPerRoll = Math.floor(rollLength / height);
+      rollsNeeded = stripsPerRoll > 0 ? quantity / stripsPerRoll : 0;
     }
 
     const component: ProjectComponent = {
       id: crypto.randomUUID(),
-      ...newComp,
+      name: newComp.name,
+      substrateType: newComp.substrateType,
+      width,
+      height,
+      quantity,
+      unitsPerStrip,
+      totalUnitsTarget,
+      rollLength,
+      inks: newComp.inks.map(ink => ({ ...ink, ml: parseFloat(ink.ml as any) || 0 })),
       area,
       inkMl,
       rollsNeeded: rollsNeeded > 0 ? rollsNeeded : undefined
@@ -111,13 +129,13 @@ export default function App() {
     setNewComp({
       name: '',
       substrateType: SubstrateType.SHEET,
-      width: 0,
-      height: 0,
-      quantity: 1,
-      unitsPerStrip: 0,
-      totalUnitsTarget: 0,
-      rollLength: DEFAULT_ROLL_LENGTH,
-      inks: INITIAL_INKS.map(ink => ({ ...ink })),
+      width: '0',
+      height: '0',
+      quantity: '1',
+      unitsPerStrip: '0',
+      totalUnitsTarget: '0',
+      rollLength: String(DEFAULT_ROLL_LENGTH),
+      inks: INITIAL_INKS.map(ink => ({ ...ink, ml: '0' })),
     });
   };
 
@@ -380,8 +398,8 @@ export default function App() {
                           <input 
                             type="number" 
                             className="input-field-dark border-brand-accent/20"
-                            value={newComp.unitsPerStrip || ''}
-                            onChange={e => setNewComp(prev => ({ ...prev, unitsPerStrip: parseInt(e.target.value) || 0 }))}
+                            value={newComp.unitsPerStrip}
+                            onChange={e => setNewComp(prev => ({ ...prev, unitsPerStrip: e.target.value }))}
                           />
                         </div>
                         <div className="space-y-1">
@@ -389,8 +407,8 @@ export default function App() {
                           <input 
                             type="number" 
                             className="input-field-dark border-brand-accent/20"
-                            value={newComp.totalUnitsTarget || ''}
-                            onChange={e => setNewComp(prev => ({ ...prev, totalUnitsTarget: parseInt(e.target.value) || 0 }))}
+                            value={newComp.totalUnitsTarget}
+                            onChange={e => setNewComp(prev => ({ ...prev, totalUnitsTarget: e.target.value }))}
                           />
                         </div>
                       </div>
@@ -404,7 +422,7 @@ export default function App() {
                           step="any"
                           className="input-field-dark font-mono"
                           value={newComp.rollLength}
-                          onChange={e => setNewComp(prev => ({ ...prev, rollLength: parseFloat(e.target.value) || 0 }))}
+                          onChange={e => setNewComp(prev => ({ ...prev, rollLength: e.target.value }))}
                         />
                       </div>
                     )}
@@ -414,7 +432,7 @@ export default function App() {
                         <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Ancho (m)</label>
                         <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
                           <button 
-                            onClick={() => setNewComp(prev => ({ ...prev, width: Math.max(0, (prev.width || 0) - 0.1) }))}
+                            onClick={() => setNewComp(prev => ({ ...prev, width: String(Math.max(0, (parseFloat(prev.width) || 0) - 0.1)) }))}
                             className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
                           >
                             <Minus size={14} />
@@ -423,11 +441,11 @@ export default function App() {
                             type="number" 
                             step="any"
                             className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
-                            value={newComp.width || ''}
-                            onChange={e => setNewComp(prev => ({ ...prev, width: parseFloat(e.target.value) || 0 }))}
+                            value={newComp.width}
+                            onChange={e => setNewComp(prev => ({ ...prev, width: e.target.value }))}
                           />
                           <button 
-                            onClick={() => setNewComp(prev => ({ ...prev, width: (prev.width || 0) + 0.1 }))}
+                            onClick={() => setNewComp(prev => ({ ...prev, width: String((parseFloat(prev.width) || 0) + 0.1) }))}
                             className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
                           >
                             <Plus size={14} />
@@ -438,7 +456,7 @@ export default function App() {
                         <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Alto (m)</label>
                         <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
                           <button 
-                            onClick={() => setNewComp(prev => ({ ...prev, height: Math.max(0, (prev.height || 0) - 0.1) }))}
+                            onClick={() => setNewComp(prev => ({ ...prev, height: String(Math.max(0, (parseFloat(prev.height) || 0) - 0.1)) }))}
                             className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
                           >
                             <Minus size={14} />
@@ -447,11 +465,11 @@ export default function App() {
                             type="number" 
                             step="any"
                             className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
-                            value={newComp.height || ''}
-                            onChange={e => setNewComp(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
+                            value={newComp.height}
+                            onChange={e => setNewComp(prev => ({ ...prev, height: e.target.value }))}
                           />
                           <button 
-                            onClick={() => setNewComp(prev => ({ ...prev, height: (prev.height || 0) + 0.1 }))}
+                            onClick={() => setNewComp(prev => ({ ...prev, height: String((parseFloat(prev.height) || 0) + 0.1) }))}
                             className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
                           >
                             <Plus size={14} />
@@ -464,7 +482,7 @@ export default function App() {
                       <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Cantidad</label>
                       <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
                         <button 
-                          onClick={() => setNewComp(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
+                          onClick={() => setNewComp(prev => ({ ...prev, quantity: String(Math.max(1, (parseInt(prev.quantity) || 0) - 1)) }))}
                           className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
                         >
                           <Minus size={14} />
@@ -473,10 +491,10 @@ export default function App() {
                           type="number" 
                           className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
                           value={newComp.quantity}
-                          onChange={e => setNewComp(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                          onChange={e => setNewComp(prev => ({ ...prev, quantity: e.target.value }))}
                         />
                         <button 
-                          onClick={() => setNewComp(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
+                          onClick={() => setNewComp(prev => ({ ...prev, quantity: String((parseInt(prev.quantity) || 0) + 1) }))}
                           className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
                         >
                           <Plus size={14} />
@@ -493,12 +511,12 @@ export default function App() {
                             type="number" 
                             step="any"
                             className="flex-1 bg-transparent border-b border-white/10 text-xs font-mono focus:outline-none focus:border-brand-accent py-1"
-                            value={ink.ml || ''}
+                            value={ink.ml}
                             onChange={e => {
-                              const val = parseFloat(e.target.value) || 0;
+                              const val = e.target.value;
                               setNewComp(prev => ({
                                 ...prev,
-                                inks: prev.inks.map(i => i.id === ink.id ? { ...i, ml: val } : i)
+                                inks: prev.inks.map(i => i.id === ink.id ? { ...i, ml: val as any } : i)
                               }));
                             }}
                           />
