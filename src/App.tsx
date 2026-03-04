@@ -73,12 +73,24 @@ export default function App() {
   }, [productionMode, newComp.unitsPerStrip, newComp.totalUnitsTarget]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('mnk_ink_projects');
-    if (saved) {
+    const savedProjects = localStorage.getItem('mnk_ink_projects');
+    if (savedProjects) {
       try {
-        setProjects(JSON.parse(saved));
+        setProjects(JSON.parse(savedProjects));
       } catch (e) {
         console.error("Failed to load projects", e);
+      }
+    }
+    
+    const savedCurrentName = localStorage.getItem('mnk_ink_current_name');
+    if (savedCurrentName) setProjectName(savedCurrentName);
+    
+    const savedCurrentComponents = localStorage.getItem('mnk_ink_current_components');
+    if (savedCurrentComponents) {
+      try {
+        setComponents(JSON.parse(savedCurrentComponents));
+      } catch (e) {
+        console.error("Failed to load current components", e);
       }
     }
   }, []);
@@ -86,6 +98,14 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('mnk_ink_projects', JSON.stringify(projects));
   }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('mnk_ink_current_name', projectName);
+  }, [projectName]);
+
+  useEffect(() => {
+    localStorage.setItem('mnk_ink_current_components', JSON.stringify(components));
+  }, [components]);
 
   const addComponent = () => {
     if (!newComp.name) {
@@ -194,24 +214,41 @@ export default function App() {
     setProjects(prev => prev.filter(p => p.id !== id));
   };
 
+  const loadProject = (project: Project) => {
+    if (components.length > 0 && !confirm("¿Desea cargar este proyecto? Se perderán los cambios actuales.")) {
+      return;
+    }
+    setProjectName(project.name);
+    setComponents(project.components);
+  };
+
   const exportToExcel = () => {
     if (components.length === 0) {
       alert("No hay datos para exportar");
       return;
     }
 
-    const data = components.map(c => ({
-      Componente: c.name,
-      Sustrato: c.substrateType,
-      "Ancho (m)": c.width,
-      "Alto (m)": c.height,
-      Cantidad: c.quantity,
-      "Área Total (m2)": c.area.toFixed(2),
-      "Tinta Total (ml)": c.inkMl.toFixed(2),
-      "Unid. por Tira": c.unitsPerStrip || "-",
-      "Total Unidades": c.totalUnitsTarget || "-",
-      "Rollos Estimados": c.rollsNeeded?.toFixed(2) || "-"
-    }));
+    const data = components.map(c => {
+      const row: any = {
+        Componente: c.name,
+        Sustrato: c.substrateType,
+        "Ancho (m)": c.width,
+        "Alto (m)": c.height,
+        Cantidad: c.quantity,
+        "Área Total (m2)": c.area.toFixed(2),
+        "Tinta Total (ml)": c.inkMl.toFixed(2),
+        "Unid. por Tira": c.unitsPerStrip || "-",
+        "Total Unidades": c.totalUnitsTarget || "-",
+        "Rollos Estimados": c.rollsNeeded?.toFixed(2) || "-"
+      };
+      
+      // Add per-color columns for each component
+      c.inks.forEach(ink => {
+        row[`${ink.name} (ml)`] = (ink.ml * c.quantity).toFixed(2);
+      });
+      
+      return row;
+    });
 
     // Add ink totals by color
     data.push({ Componente: "--- CONSUMO POR COLOR ---" } as any);
@@ -294,12 +331,12 @@ export default function App() {
       c.quantity,
       c.area.toFixed(2) + " m2",
       c.inkMl.toFixed(2) + " ml",
-      c.totalUnitsTarget || "-"
+      c.inks.map(i => `${i.name.charAt(0)}:${(i.ml * c.quantity).toFixed(1)}`).join(" | ")
     ]);
 
     (doc as any).autoTable({
       startY: yPos + (totals.inkTotals.length * 4) + 5,
-      head: [['Componente', 'Medida', 'Cant.', 'Área', 'Tinta', 'Unid. Totales']],
+      head: [['Componente', 'Medida', 'Cant.', 'Área', 'Tinta Total', 'Desglose Colores (ml)']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [59, 130, 246] }
@@ -607,6 +644,22 @@ export default function App() {
                                   {comp.totalUnitsTarget} unidades totales
                                 </span>
                               )}
+                              
+                              {/* Per Component Color Breakdown */}
+                              <div className="flex gap-2 mt-2">
+                                {comp.inks.map(ink => (
+                                  <div key={ink.id} className="flex flex-col items-center">
+                                    <div className={`w-1.5 h-1.5 rounded-full ${
+                                      ink.id === 'cyan' ? 'bg-cyan-400' : 
+                                      ink.id === 'magenta' ? 'bg-pink-500' : 
+                                      ink.id === 'yellow' ? 'bg-yellow-400' : 
+                                      ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
+                                      'bg-white'
+                                    }`} />
+                                    <span className="text-[8px] font-mono text-white/40 mt-0.5">{(ink.ml * comp.quantity).toFixed(2)}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                             <div className="flex items-center gap-4">
                               <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(2)}ml</span>
@@ -710,7 +763,11 @@ export default function App() {
                     </div>
                   ) : (
                     projects.map(p => (
-                      <div key={p.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group">
+                      <div 
+                        key={p.id} 
+                        onClick={() => loadProject(p)}
+                        className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      >
                         <div className="w-10 h-10 rounded-xl bg-brand-accent/20 flex items-center justify-center text-brand-accent shrink-0">
                           <FileText size={20} />
                         </div>
