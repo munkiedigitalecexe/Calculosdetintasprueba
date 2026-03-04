@@ -21,9 +21,15 @@ import {
   PieChart,
   Package,
   ChevronRight,
-  X
+  X,
+  Download,
+  FileSpreadsheet,
+  FileDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import { SubstrateType, InkComponent, Project, ProjectComponent, DEFAULT_ROLL_WIDTH, DEFAULT_ROLL_LENGTH } from './types';
 
 const INITIAL_INKS: InkComponent[] = [
@@ -48,8 +54,20 @@ export default function App() {
     width: 0,
     height: 0,
     quantity: 1,
+    unitsPerStrip: 0,
+    totalUnitsTarget: 0,
+    rollLength: DEFAULT_ROLL_LENGTH,
     inks: INITIAL_INKS.map(ink => ({ ...ink })),
   });
+
+  const [productionMode, setProductionMode] = useState(false);
+
+  useEffect(() => {
+    if (productionMode && newComp.unitsPerStrip > 0 && newComp.totalUnitsTarget > 0) {
+      const calculatedQty = Math.ceil(newComp.totalUnitsTarget / newComp.unitsPerStrip);
+      setNewComp(prev => ({ ...prev, quantity: calculatedQty }));
+    }
+  }, [productionMode, newComp.unitsPerStrip, newComp.totalUnitsTarget]);
 
   useEffect(() => {
     const saved = localStorage.getItem('mnk_ink_projects');
@@ -72,13 +90,20 @@ export default function App() {
       return;
     }
     const area = newComp.width * newComp.height * newComp.quantity;
-    const inkMl = newComp.inks.reduce((sum, ink) => sum + ink.ml, 0);
+    const inkMl = newComp.inks.reduce((sum, ink) => sum + ink.ml, 0) * newComp.quantity;
+
+    let rollsNeeded = 0;
+    if (newComp.substrateType === SubstrateType.ROLL && newComp.height > 0 && newComp.rollLength > 0) {
+      const stripsPerRoll = Math.floor(newComp.rollLength / newComp.height);
+      rollsNeeded = stripsPerRoll > 0 ? newComp.quantity / stripsPerRoll : 0;
+    }
 
     const component: ProjectComponent = {
       id: crypto.randomUUID(),
       ...newComp,
       area,
-      inkMl
+      inkMl,
+      rollsNeeded: rollsNeeded > 0 ? rollsNeeded : undefined
     };
 
     setComponents(prev => [...prev, component]);
@@ -88,6 +113,9 @@ export default function App() {
       width: 0,
       height: 0,
       quantity: 1,
+      unitsPerStrip: 0,
+      totalUnitsTarget: 0,
+      rollLength: DEFAULT_ROLL_LENGTH,
       inks: INITIAL_INKS.map(ink => ({ ...ink })),
     });
   };
@@ -128,6 +156,68 @@ export default function App() {
 
   const deleteProject = (id: string) => {
     setProjects(prev => prev.filter(p => p.id !== id));
+  };
+
+  const exportToExcel = () => {
+    if (components.length === 0) {
+      alert("No hay datos para exportar");
+      return;
+    }
+
+    const data = components.map(c => ({
+      Componente: c.name,
+      Sustrato: c.substrateType,
+      "Ancho (m)": c.width,
+      "Alto (m)": c.height,
+      Cantidad: c.quantity,
+      "Área Total (m2)": c.area.toFixed(2),
+      "Tinta Total (ml)": c.inkMl.toFixed(2),
+      "Unid. por Tira": c.unitsPerStrip || "-",
+      "Total Unidades": c.totalUnitsTarget || "-",
+      "Rollos Estimados": c.rollsNeeded?.toFixed(2) || "-"
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Producción");
+    XLSX.writeFile(wb, `${projectName || 'Proyecto'}_MNK_INK.xlsx`);
+  };
+
+  const exportToPDF = () => {
+    if (components.length === 0) {
+      alert("No hay datos para exportar");
+      return;
+    }
+
+    const doc = new jsPDF();
+    const title = projectName || "PROYECTO MNK EST INK";
+    
+    doc.setFontSize(20);
+    doc.text(title.toUpperCase(), 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Fecha: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`Total Tinta: ${totals.totalInkMl.toFixed(1)} ml`, 14, 38);
+    doc.text(`Rendimiento: ${totals.mlPerM2.toFixed(2)} ml/m2`, 14, 46);
+
+    const tableData = components.map(c => [
+      c.name,
+      c.width + "x" + c.height,
+      c.quantity,
+      c.area.toFixed(2) + " m2",
+      c.inkMl.toFixed(1) + " ml",
+      c.totalUnitsTarget || "-"
+    ]);
+
+    (doc as any).autoTable({
+      startY: 55,
+      head: [['Componente', 'Medida', 'Cant.', 'Área', 'Tinta', 'Unid. Totales']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    doc.save(`${projectName || 'Proyecto'}_MNK_INK.pdf`);
   };
 
   return (
@@ -239,6 +329,55 @@ export default function App() {
                       </button>
                     </div>
 
+                    {/* Production Mode Toggle */}
+                    <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-white/60 uppercase">Modo Producción</span>
+                        <span className="text-[8px] text-white/30 uppercase">Calcula repeticiones automáticamente</span>
+                      </div>
+                      <button 
+                        onClick={() => setProductionMode(!productionMode)}
+                        className={`w-10 h-5 rounded-full relative transition-colors ${productionMode ? 'bg-brand-accent' : 'bg-white/10'}`}
+                      >
+                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${productionMode ? 'left-6' : 'left-1'}`} />
+                      </button>
+                    </div>
+
+                    {productionMode && (
+                      <div className="grid grid-cols-2 gap-3 bg-brand-accent/5 p-4 rounded-2xl border border-brand-accent/20">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-brand-accent uppercase ml-1">Unid. por Tira</label>
+                          <input 
+                            type="number" 
+                            className="input-field-dark border-brand-accent/20"
+                            value={newComp.unitsPerStrip || ''}
+                            onChange={e => setNewComp(prev => ({ ...prev, unitsPerStrip: parseInt(e.target.value) || 0 }))}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-brand-accent uppercase ml-1">Total Unidades</label>
+                          <input 
+                            type="number" 
+                            className="input-field-dark border-brand-accent/20"
+                            value={newComp.totalUnitsTarget || ''}
+                            onChange={e => setNewComp(prev => ({ ...prev, totalUnitsTarget: parseInt(e.target.value) || 0 }))}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {newComp.substrateType === SubstrateType.ROLL && (
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Largo del Rollo (m)</label>
+                        <input 
+                          type="number" 
+                          className="input-field-dark font-mono"
+                          value={newComp.rollLength}
+                          onChange={e => setNewComp(prev => ({ ...prev, rollLength: parseFloat(e.target.value) || 0 }))}
+                        />
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Ancho (m)</label>
@@ -329,8 +468,13 @@ export default function App() {
                             <div className="flex flex-col">
                               <span className="text-xs font-bold text-white/80">{comp.name}</span>
                               <span className="text-[10px] text-white/30 font-mono">
-                                {comp.width}x{comp.height}m • x{comp.quantity} • {comp.area.toFixed(2)}m²
+                                {comp.width}x{comp.height}m • x{comp.quantity} {comp.substrateType === SubstrateType.ROLL && comp.rollsNeeded ? `(${comp.rollsNeeded.toFixed(2)} rollos)` : ''}
                               </span>
+                              {comp.totalUnitsTarget && (
+                                <span className="text-[8px] text-brand-accent font-bold uppercase">
+                                  {comp.totalUnitsTarget} unidades totales
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center gap-4">
                               <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(1)}ml</span>
@@ -371,6 +515,23 @@ export default function App() {
                   <StatMini label="Área" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
                   <StatMini label="Litros" value={`${(totals.totalInkMl/1000).toFixed(2)}`} unit="L" color="bg-brand-secondary" />
                   <StatMini label="Comp." value={`${components.length}`} unit="und" color="bg-purple-500" />
+                </div>
+
+                <div className="grid grid-cols-2 w-full gap-3 mt-2">
+                  <button 
+                    onClick={exportToExcel}
+                    className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-4 rounded-xl text-[10px] font-bold transition-all shadow-lg shadow-emerald-500/20"
+                  >
+                    <FileSpreadsheet size={14} />
+                    EXCEL
+                  </button>
+                  <button 
+                    onClick={exportToPDF}
+                    className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl text-[10px] font-bold transition-all shadow-lg shadow-red-500/20"
+                  >
+                    <FileDown size={14} />
+                    PDF
+                  </button>
                 </div>
               </section>
 

@@ -15,7 +15,10 @@ export interface ProjectComponent {
   substrateType: SubstrateType;
   width: number; // in meters
   height: number; // in meters
-  quantity: number;
+  quantity: number; // Number of repetitions/strips
+  unitsPerStrip?: number; // e.g., 40 units per 1.5x0.41m strip
+  totalUnitsTarget?: number; // e.g., 20000 units
+  rollsNeeded?: number; // calculated if ROLL
   inks: InkComponent[];
   area: number;
   inkMl: number;
