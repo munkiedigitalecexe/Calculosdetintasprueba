@@ -134,7 +134,7 @@ export default function App() {
               <Droplets size={24} />
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-tight">InkCalc Pro</h1>
+              <h1 className="font-bold text-lg leading-tight">MNK Est INK</h1>
               <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Gestión de Consumo</p>
             </div>
           </div>
@@ -423,9 +423,55 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-20 py-8 border-t border-slate-200 text-center">
         <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">
-          InkCalc Pro © {new Date().getFullYear()} • Herramienta de Precisión para Impresión
+          desarrollado con amor por{' '}
+          <a 
+            href="https://munkiedigitalecuador.vercel.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-indigo-500 hover:underline"
+          >
+            munkiedigitalecuador
+          </a>{' '}
+          © 2026
         </p>
       </footer>
+
+      {/* Social Bubbles */}
+      <div className="fixed right-6 bottom-24 flex flex-col gap-3 z-50">
+        <motion.a
+          whileHover={{ scale: 1.1, x: -5 }}
+          whileTap={{ scale: 0.9 }}
+          href="https://instagram.com/bryant_ldu"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg"
+          title="Instagram"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        </motion.a>
+        <motion.a
+          whileHover={{ scale: 1.1, x: -5 }}
+          whileTap={{ scale: 0.9 }}
+          href="https://facebook.com/bryant.ldu"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 bg-[#1877F2] rounded-full flex items-center justify-center text-white shadow-lg"
+          title="Facebook"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </motion.a>
+        <motion.a
+          whileHover={{ scale: 1.1, x: -5 }}
+          whileTap={{ scale: 0.9 }}
+          href="https://wa.me/593998257855"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-lg"
+          title="WhatsApp"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </motion.a>
+      </div>
     </div>
   );
 }
