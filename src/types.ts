@@ -33,6 +33,7 @@ export interface Project {
   totalArea: number; // m2
   totalInkMl: number;
   mlPerM2: number;
+  inkTotals?: any[];
 }
 
 export const DEFAULT_ROLL_WIDTH = 1.5;

@@ -148,7 +148,23 @@ export default function App() {
     const totalInkMl = components.reduce((sum, c) => sum + c.inkMl, 0);
     const totalInkWithWaste = totalInkMl * 1.15;
     const mlPerM2 = totalArea > 0 ? totalInkMl / totalArea : 0;
-    return { totalArea, totalInkMl, totalInkWithWaste, mlPerM2 };
+    
+    // Per-ink totals
+    const inkTotals = INITIAL_INKS.map(initialInk => {
+      const ml = components.reduce((sum, comp) => {
+        const compInk = comp.inks.find(i => i.id === initialInk.id);
+        return sum + (compInk ? compInk.ml * comp.quantity : 0);
+      }, 0);
+      return {
+        ...initialInk,
+        ml,
+        liters: ml / 1000,
+        mlWithWaste: ml * 1.15,
+        litersWithWaste: (ml * 1.15) / 1000
+      };
+    });
+
+    return { totalArea, totalInkMl, totalInkWithWaste, mlPerM2, inkTotals };
   }, [components]);
 
   const saveProject = () => {
@@ -197,7 +213,21 @@ export default function App() {
       "Rollos Estimados": c.rollsNeeded?.toFixed(2) || "-"
     }));
 
+    // Add ink totals by color
+    data.push({ Componente: "--- CONSUMO POR COLOR ---" } as any);
+    totals.inkTotals.forEach(ink => {
+      data.push({
+        Componente: `Tinta ${ink.name}`,
+        "Tinta Total (ml)": ink.ml.toFixed(2),
+        "Área Total (m2)": `${ink.liters.toFixed(4)} L`,
+        Sustrato: "Con Desperdicio:",
+        "Ancho (m)": ink.mlWithWaste.toFixed(2) as any,
+        "Alto (m)": `${ink.litersWithWaste.toFixed(4)} L` as any
+      } as any);
+    });
+
     // Add summary row with waste
+    data.push({ Componente: "--- TOTALES GENERALES ---" } as any);
     data.push({
       Componente: "TOTAL PROYECTO (Sin Desperdicio)",
       Sustrato: "",
@@ -248,6 +278,16 @@ export default function App() {
     doc.text(`Total con 15% Desperdicio: ${totals.totalInkWithWaste.toFixed(2)} ml`, 14, 46);
     doc.text(`Rendimiento: ${totals.mlPerM2.toFixed(2)} ml/m2`, 14, 54);
 
+    // Add per-color info
+    doc.setFontSize(9);
+    let yPos = 62;
+    doc.text("CONSUMO POR COLOR (ML / LITROS):", 14, yPos);
+    yPos += 5;
+    totals.inkTotals.forEach((ink, i) => {
+      const text = `${ink.name}: ${ink.ml.toFixed(2)}ml (${ink.liters.toFixed(3)}L) | Con Desperdicio: ${ink.mlWithWaste.toFixed(2)}ml (${ink.litersWithWaste.toFixed(3)}L)`;
+      doc.text(text, 14, yPos + (i * 4));
+    });
+
     const tableData = components.map(c => [
       c.name,
       c.width + "x" + c.height,
@@ -258,7 +298,7 @@ export default function App() {
     ]);
 
     (doc as any).autoTable({
-      startY: 55,
+      startY: yPos + (totals.inkTotals.length * 4) + 5,
       head: [['Componente', 'Medida', 'Cant.', 'Área', 'Tinta', 'Unid. Totales']],
       body: tableData,
       theme: 'grid',
@@ -607,6 +647,34 @@ export default function App() {
                   <StatMini label="Área" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
                   <StatMini label="Tinta Neta" value={`${totals.totalInkMl.toFixed(2)}`} unit="ml" color="bg-brand-secondary" />
                   <StatMini label="Desperdicio" value={`${(totals.totalInkWithWaste - totals.totalInkMl).toFixed(2)}`} unit="ml" color="bg-orange-500" />
+                </div>
+
+                {/* Per Color Breakdown */}
+                <div className="w-full bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <div className="text-[10px] font-bold text-white/30 uppercase mb-3 tracking-widest">Consumo por Color</div>
+                  <div className="space-y-3">
+                    {totals.inkTotals.map(ink => (
+                      <div key={ink.id} className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              ink.id === 'cyan' ? 'bg-cyan-400' : 
+                              ink.id === 'magenta' ? 'bg-pink-500' : 
+                              ink.id === 'yellow' ? 'bg-yellow-400' : 
+                              ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
+                              'bg-white'
+                            }`} />
+                            <span className="text-[10px] font-bold text-white/60 uppercase">{ink.name}</span>
+                          </div>
+                          <span className="text-[10px] font-mono font-bold text-brand-accent">{ink.mlWithWaste.toFixed(2)} ml</span>
+                        </div>
+                        <div className="flex justify-between items-center pl-4">
+                          <span className="text-[8px] text-white/20 uppercase">Litros (con desp.)</span>
+                          <span className="text-[9px] font-mono text-white/40">{ink.litersWithWaste.toFixed(4)} L</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 w-full gap-3 mt-2">
