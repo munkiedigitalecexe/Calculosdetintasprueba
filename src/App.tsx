@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Plus, 
+  Minus,
   Trash2, 
   Calculator, 
   Layers, 
@@ -303,7 +304,7 @@ export default function App() {
           {/* Dashboard Grid */}
           <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 overflow-hidden">
             {/* Left Column: Editor */}
-            <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0 overflow-hidden">
+            <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
               {/* Project Info Card */}
               <section className="glass-card p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-4 md:gap-0">
                 <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -327,8 +328,8 @@ export default function App() {
               </section>
 
               {/* Component Editor & List Container */}
-              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0 overflow-hidden">
-                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar max-h-[70vh] lg:max-h-full">
                   <h3 className="text-sm font-bold flex items-center gap-2 text-brand-accent sticky top-0 bg-brand-bg/80 backdrop-blur-md py-2 z-20">
                     <Calculator size={16} />
                     NUEVO COMPONENTE
@@ -410,34 +411,76 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Ancho (m)</label>
-                        <input 
-                          type="number" 
-                          step="0.01"
-                          className="input-field-dark font-mono"
-                          value={newComp.width || ''}
-                          onChange={e => setNewComp(prev => ({ ...prev, width: parseFloat(e.target.value) || 0 }))}
-                        />
+                        <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                          <button 
+                            onClick={() => setNewComp(prev => ({ ...prev, width: Math.max(0, (prev.width || 0) - 0.1) }))}
+                            className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <input 
+                            type="number" 
+                            step="0.01"
+                            className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
+                            value={newComp.width || ''}
+                            onChange={e => setNewComp(prev => ({ ...prev, width: parseFloat(e.target.value) || 0 }))}
+                          />
+                          <button 
+                            onClick={() => setNewComp(prev => ({ ...prev, width: (prev.width || 0) + 0.1 }))}
+                            className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Alto (m)</label>
-                        <input 
-                          type="number" 
-                          step="0.01"
-                          className="input-field-dark font-mono"
-                          value={newComp.height || ''}
-                          onChange={e => setNewComp(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
-                        />
+                        <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                          <button 
+                            onClick={() => setNewComp(prev => ({ ...prev, height: Math.max(0, (prev.height || 0) - 0.1) }))}
+                            className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <input 
+                            type="number" 
+                            step="0.01"
+                            className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
+                            value={newComp.height || ''}
+                            onChange={e => setNewComp(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
+                          />
+                          <button 
+                            onClick={() => setNewComp(prev => ({ ...prev, height: (prev.height || 0) + 0.1 }))}
+                            className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Cantidad</label>
-                      <input 
-                        type="number" 
-                        className="input-field-dark font-mono"
-                        value={newComp.quantity}
-                        onChange={e => setNewComp(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
-                      />
+                      <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                        <button 
+                          onClick={() => setNewComp(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
+                          className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <input 
+                          type="number" 
+                          className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
+                          value={newComp.quantity}
+                          onChange={e => setNewComp(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                        />
+                        <button 
+                          onClick={() => setNewComp(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
+                          className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="bg-white/5 rounded-2xl p-4 space-y-3">
