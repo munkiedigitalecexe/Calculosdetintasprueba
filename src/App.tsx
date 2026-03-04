@@ -127,8 +127,9 @@ export default function App() {
   const totals = useMemo(() => {
     const totalArea = components.reduce((sum, c) => sum + c.area, 0);
     const totalInkMl = components.reduce((sum, c) => sum + c.inkMl, 0);
+    const totalInkWithWaste = totalInkMl * 1.15;
     const mlPerM2 = totalArea > 0 ? totalInkMl / totalArea : 0;
-    return { totalArea, totalInkMl, mlPerM2 };
+    return { totalArea, totalInkMl, totalInkWithWaste, mlPerM2 };
   }, [components]);
 
   const saveProject = () => {
@@ -177,6 +178,33 @@ export default function App() {
       "Rollos Estimados": c.rollsNeeded?.toFixed(2) || "-"
     }));
 
+    // Add summary row with waste
+    data.push({
+      Componente: "TOTAL PROYECTO (Sin Desperdicio)",
+      Sustrato: "",
+      "Ancho (m)": 0,
+      "Alto (m)": 0,
+      Cantidad: 0,
+      "Área Total (m2)": totals.totalArea.toFixed(2),
+      "Tinta Total (ml)": totals.totalInkMl.toFixed(2),
+      "Unid. por Tira": "",
+      "Total Unidades": "",
+      "Rollos Estimados": ""
+    } as any);
+
+    data.push({
+      Componente: "TOTAL CON 15% DESPERDICIO",
+      Sustrato: "",
+      "Ancho (m)": 0,
+      "Alto (m)": 0,
+      Cantidad: 0,
+      "Área Total (m2)": "",
+      "Tinta Total (ml)": totals.totalInkWithWaste.toFixed(2),
+      "Unid. por Tira": "",
+      "Total Unidades": "",
+      "Rollos Estimados": ""
+    } as any);
+
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Producción");
@@ -197,8 +225,9 @@ export default function App() {
     doc.setFontSize(11);
     doc.setTextColor(100);
     doc.text(`Fecha: ${new Date().toLocaleString()}`, 14, 30);
-    doc.text(`Total Tinta: ${totals.totalInkMl.toFixed(1)} ml`, 14, 38);
-    doc.text(`Rendimiento: ${totals.mlPerM2.toFixed(2)} ml/m2`, 14, 46);
+    doc.text(`Total Tinta (Neto): ${totals.totalInkMl.toFixed(1)} ml`, 14, 38);
+    doc.text(`Total con 15% Desperdicio: ${totals.totalInkWithWaste.toFixed(1)} ml`, 14, 46);
+    doc.text(`Rendimiento: ${totals.mlPerM2.toFixed(2)} ml/m2`, 14, 54);
 
     const tableData = components.map(c => [
       c.name,
@@ -506,15 +535,15 @@ export default function App() {
                   <div className="absolute inset-0 rounded-full border-[8px] md:border-[12px] border-brand-accent border-t-transparent border-l-transparent rotate-45" />
                   <div className="flex flex-col items-center">
                     <span className="text-[10px] md:text-xs text-white/40 font-bold uppercase">Total ml</span>
-                    <span className="text-2xl md:text-4xl font-black font-mono tracking-tighter">{totals.totalInkMl.toFixed(1)}</span>
-                    <span className="text-[8px] md:text-[10px] text-brand-accent font-bold mt-1">{totals.mlPerM2.toFixed(2)} ml/m²</span>
+                    <span className="text-2xl md:text-4xl font-black font-mono tracking-tighter">{totals.totalInkWithWaste.toFixed(1)}</span>
+                    <span className="text-[8px] md:text-[10px] text-brand-accent font-bold mt-1">Incluye 15% desperdicio</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 w-full gap-2 md:gap-4">
                   <StatMini label="Área" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
-                  <StatMini label="Litros" value={`${(totals.totalInkMl/1000).toFixed(2)}`} unit="L" color="bg-brand-secondary" />
-                  <StatMini label="Comp." value={`${components.length}`} unit="und" color="bg-purple-500" />
+                  <StatMini label="Tinta Neta" value={`${totals.totalInkMl.toFixed(1)}`} unit="ml" color="bg-brand-secondary" />
+                  <StatMini label="Desperdicio" value={`${(totals.totalInkWithWaste - totals.totalInkMl).toFixed(1)}`} unit="ml" color="bg-orange-500" />
                 </div>
 
                 <div className="grid grid-cols-2 w-full gap-3 mt-2">
