@@ -226,8 +226,8 @@ export default function App() {
     doc.setFontSize(11);
     doc.setTextColor(100);
     doc.text(`Fecha: ${new Date().toLocaleString()}`, 14, 30);
-    doc.text(`Total Tinta (Neto): ${totals.totalInkMl.toFixed(1)} ml`, 14, 38);
-    doc.text(`Total con 15% Desperdicio: ${totals.totalInkWithWaste.toFixed(1)} ml`, 14, 46);
+    doc.text(`Total Tinta (Neto): ${totals.totalInkMl.toFixed(2)} ml`, 14, 38);
+    doc.text(`Total con 15% Desperdicio: ${totals.totalInkWithWaste.toFixed(2)} ml`, 14, 46);
     doc.text(`Rendimiento: ${totals.mlPerM2.toFixed(2)} ml/m2`, 14, 54);
 
     const tableData = components.map(c => [
@@ -235,7 +235,7 @@ export default function App() {
       c.width + "x" + c.height,
       c.quantity,
       c.area.toFixed(2) + " m2",
-      c.inkMl.toFixed(1) + " ml",
+      c.inkMl.toFixed(2) + " ml",
       c.totalUnitsTarget || "-"
     ]);
 
@@ -401,6 +401,7 @@ export default function App() {
                         <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Largo del Rollo (m)</label>
                         <input 
                           type="number" 
+                          step="any"
                           className="input-field-dark font-mono"
                           value={newComp.rollLength}
                           onChange={e => setNewComp(prev => ({ ...prev, rollLength: parseFloat(e.target.value) || 0 }))}
@@ -420,7 +421,7 @@ export default function App() {
                           </button>
                           <input 
                             type="number" 
-                            step="0.01"
+                            step="any"
                             className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
                             value={newComp.width || ''}
                             onChange={e => setNewComp(prev => ({ ...prev, width: parseFloat(e.target.value) || 0 }))}
@@ -444,7 +445,7 @@ export default function App() {
                           </button>
                           <input 
                             type="number" 
-                            step="0.01"
+                            step="any"
                             className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
                             value={newComp.height || ''}
                             onChange={e => setNewComp(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
@@ -490,6 +491,7 @@ export default function App() {
                           <span className="text-[10px] font-bold w-16 text-white/60">{ink.name}</span>
                           <input 
                             type="number" 
+                            step="any"
                             className="flex-1 bg-transparent border-b border-white/10 text-xs font-mono focus:outline-none focus:border-brand-accent py-1"
                             value={ink.ml || ''}
                             onChange={e => {
@@ -549,7 +551,7 @@ export default function App() {
                               )}
                             </div>
                             <div className="flex items-center gap-4">
-                              <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(1)}ml</span>
+                              <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(2)}ml</span>
                               <button 
                                 onClick={() => removeComponent(comp.id)}
                                 className="text-white/20 hover:text-brand-accent transition-colors"
@@ -578,15 +580,15 @@ export default function App() {
                   <div className="absolute inset-0 rounded-full border-[8px] md:border-[12px] border-brand-accent border-t-transparent border-l-transparent rotate-45" />
                   <div className="flex flex-col items-center">
                     <span className="text-[10px] md:text-xs text-white/40 font-bold uppercase">Total ml</span>
-                    <span className="text-2xl md:text-4xl font-black font-mono tracking-tighter">{totals.totalInkWithWaste.toFixed(1)}</span>
+                    <span className="text-2xl md:text-4xl font-black font-mono tracking-tighter">{totals.totalInkWithWaste.toFixed(2)}</span>
                     <span className="text-[8px] md:text-[10px] text-brand-accent font-bold mt-1">Incluye 15% desperdicio</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 w-full gap-2 md:gap-4">
                   <StatMini label="Área" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
-                  <StatMini label="Tinta Neta" value={`${totals.totalInkMl.toFixed(1)}`} unit="ml" color="bg-brand-secondary" />
-                  <StatMini label="Desperdicio" value={`${(totals.totalInkWithWaste - totals.totalInkMl).toFixed(1)}`} unit="ml" color="bg-orange-500" />
+                  <StatMini label="Tinta Neta" value={`${totals.totalInkMl.toFixed(2)}`} unit="ml" color="bg-brand-secondary" />
+                  <StatMini label="Desperdicio" value={`${(totals.totalInkWithWaste - totals.totalInkMl).toFixed(2)}`} unit="ml" color="bg-orange-500" />
                 </div>
 
                 <div className="grid grid-cols-2 w-full gap-3 mt-2">
@@ -631,7 +633,7 @@ export default function App() {
                           <p className="text-[10px] text-white/30">{p.date}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span className="text-xs font-bold font-mono">{p.totalInkMl.toFixed(1)}ml</span>
+                          <span className="text-xs font-bold font-mono">{p.totalInkMl.toFixed(2)}ml</span>
                           <button 
                             onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
                             className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-brand-accent transition-all"
