@@ -301,9 +301,9 @@ export default function App() {
           </header>
 
           {/* Dashboard Grid */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 overflow-y-auto md:overflow-hidden">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 overflow-hidden">
             {/* Left Column: Editor */}
-            <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 overflow-y-auto md:overflow-hidden">
+            <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0 overflow-hidden">
               {/* Project Info Card */}
               <section className="glass-card p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-4 md:gap-0">
                 <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -327,9 +327,9 @@ export default function App() {
               </section>
 
               {/* Component Editor & List Container */}
-              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-y-auto md:overflow-hidden">
-                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto">
-                  <h3 className="text-sm font-bold flex items-center gap-2 text-brand-accent">
+              <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0 overflow-hidden">
+                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+                  <h3 className="text-sm font-bold flex items-center gap-2 text-brand-accent sticky top-0 bg-brand-bg/80 backdrop-blur-md py-2 z-20">
                     <Calculator size={16} />
                     NUEVO COMPONENTE
                   </h3>
@@ -463,7 +463,7 @@ export default function App() {
 
                     <button 
                       onClick={addComponent}
-                      className="btn-secondary w-full"
+                      className="btn-secondary w-full mb-8"
                     >
                       <Plus size={18} />
                       Añadir Componente
