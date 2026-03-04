@@ -11,10 +11,20 @@ import {
   ArrowRight,
   FileText,
   LayoutGrid,
-  Info
+  Info,
+  Search,
+  Bell,
+  ShoppingCart,
+  User,
+  Home,
+  Settings,
+  PieChart,
+  Package,
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SubstrateType, InkComponent, Project, DEFAULT_ROLL_WIDTH, DEFAULT_ROLL_LENGTH } from './types';
+import { SubstrateType, InkComponent, Project, ProjectComponent, DEFAULT_ROLL_WIDTH, DEFAULT_ROLL_LENGTH } from './types';
 
 const INITIAL_INKS: InkComponent[] = [
   { id: 'cyan', name: 'Cyan', ml: 0 },
@@ -24,9 +34,15 @@ const INITIAL_INKS: InkComponent[] = [
   { id: 'white', name: 'White', ml: 0 },
 ];
 
+const LOGO_URL = "https://munkiedigitalecuador.vercel.app/lovable-uploads/d595f062-6436-48e6-a22a-91aa6e4e8169.png";
+
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [currentProject, setCurrentProject] = useState({
+  const [projectName, setProjectName] = useState('');
+  const [components, setComponents] = useState<ProjectComponent[]>([]);
+  
+  // Form state for a single component being added
+  const [newComp, setNewComp] = useState({
     name: '',
     substrateType: SubstrateType.SHEET,
     width: 0,
@@ -35,9 +51,8 @@ export default function App() {
     inks: INITIAL_INKS.map(ink => ({ ...ink })),
   });
 
-  // Load projects from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('inkcalc_projects');
+    const saved = localStorage.getItem('mnk_ink_projects');
     if (saved) {
       try {
         setProjects(JSON.parse(saved));
@@ -47,436 +62,423 @@ export default function App() {
     }
   }, []);
 
-  // Save projects to localStorage when they change
   useEffect(() => {
-    localStorage.setItem('inkcalc_projects', JSON.stringify(projects));
+    localStorage.setItem('mnk_ink_projects', JSON.stringify(projects));
   }, [projects]);
 
-  const calculations = useMemo(() => {
-    const { width, height, quantity, inks, substrateType } = currentProject;
-    
-    let area = 0;
-    if (substrateType === SubstrateType.SHEET) {
-      area = width * height * quantity;
-    } else {
-      // For rolls, if user provides width/height, it might be the printed area
-      // but usually they want to calculate based on the total roll area or specific job area
-      area = width * height * quantity;
+  const addComponent = () => {
+    if (!newComp.name) {
+      alert("Asigne un nombre al componente (ej: Rótulo, Cenefa)");
+      return;
     }
+    const area = newComp.width * newComp.height * newComp.quantity;
+    const inkMl = newComp.inks.reduce((sum, ink) => sum + ink.ml, 0);
 
-    const totalInkMl = inks.reduce((sum, ink) => sum + ink.ml, 0);
-    const mlPerM2 = area > 0 ? totalInkMl / area : 0;
-
-    return {
-      totalArea: area,
-      totalInkMl,
-      mlPerM2,
-      totalInkL: totalInkMl / 1000
+    const component: ProjectComponent = {
+      id: crypto.randomUUID(),
+      ...newComp,
+      area,
+      inkMl
     };
-  }, [currentProject]);
 
-  const handleInkChange = (id: string, value: string) => {
-    const ml = parseFloat(value) || 0;
-    setCurrentProject(prev => ({
-      ...prev,
-      inks: prev.inks.map(ink => ink.id === id ? { ...ink, ml } : ink)
-    }));
+    setComponents(prev => [...prev, component]);
+    setNewComp({
+      name: '',
+      substrateType: SubstrateType.SHEET,
+      width: 0,
+      height: 0,
+      quantity: 1,
+      inks: INITIAL_INKS.map(ink => ({ ...ink })),
+    });
   };
 
+  const removeComponent = (id: string) => {
+    setComponents(prev => prev.filter(c => c.id !== id));
+  };
+
+  const totals = useMemo(() => {
+    const totalArea = components.reduce((sum, c) => sum + c.area, 0);
+    const totalInkMl = components.reduce((sum, c) => sum + c.inkMl, 0);
+    const mlPerM2 = totalArea > 0 ? totalInkMl / totalArea : 0;
+    return { totalArea, totalInkMl, mlPerM2 };
+  }, [components]);
+
   const saveProject = () => {
-    if (!currentProject.name) {
-      alert("Por favor, asigne un nombre al proyecto.");
+    if (!projectName) {
+      alert("Nombre del proyecto requerido");
       return;
     }
-    if (calculations.totalArea <= 0) {
-      alert("El área total debe ser mayor a 0.");
+    if (components.length === 0) {
+      alert("Añada al menos un componente");
       return;
     }
 
-    const newProject: Project = {
+    const project: Project = {
       id: crypto.randomUUID(),
+      name: projectName,
       date: new Date().toLocaleString(),
-      ...currentProject,
-      totalArea: calculations.totalArea,
-      totalInkMl: calculations.totalInkMl,
-      mlPerM2: calculations.mlPerM2,
+      components: [...components],
+      ...totals
     };
 
-    setProjects(prev => [newProject, ...prev]);
-    // Reset form partially
-    setCurrentProject(prev => ({
-      ...prev,
-      name: '',
-      inks: INITIAL_INKS.map(ink => ({ ...ink }))
-    }));
+    setProjects(prev => [project, ...prev]);
+    setProjectName('');
+    setComponents([]);
   };
 
   const deleteProject = (id: string) => {
     setProjects(prev => prev.filter(p => p.id !== id));
   };
 
-  const setRollDefaults = () => {
-    setCurrentProject(prev => ({
-      ...prev,
-      width: DEFAULT_ROLL_WIDTH,
-      height: DEFAULT_ROLL_LENGTH,
-      substrateType: SubstrateType.ROLL
-    }));
-  };
-
   return (
-    <div className="min-h-screen pb-20">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-100">
-              <img 
-                src="https://munkiedigitalecuador.vercel.app/lovable-uploads/d595f062-6436-48e6-a22a-91aa6e4e8169.png" 
-                alt="Logo" 
-                className="w-full h-full object-contain"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">MNK Est INK</h1>
-              <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Gestión de Consumo</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-              className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors"
-            >
-              <History size={18} />
-              Historial
-            </button>
-          </div>
+    <div className="flex h-screen bg-brand-bg text-white overflow-hidden p-4 gap-4">
+      {/* Sidebar */}
+      <aside className="w-20 glass-card flex flex-col items-center py-8 gap-8 shrink-0">
+        <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white p-1">
+          <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
         </div>
-      </header>
+        
+        <nav className="flex flex-col gap-6 flex-1">
+          <SidebarIcon icon={<Home size={22} />} active />
+          <SidebarIcon icon={<Package size={22} />} />
+          <SidebarIcon icon={<PieChart size={22} />} />
+          <SidebarIcon icon={<Settings size={22} />} />
+        </nav>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Input Form */}
-        <div className="lg:col-span-8 space-y-8">
-          <section className="card p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <Calculator size={20} className="text-indigo-600" />
-                Nuevo Cálculo
-              </h2>
-              <div className="flex bg-slate-100 p-1 rounded-lg">
-                <button 
-                  onClick={() => setCurrentProject(prev => ({ ...prev, substrateType: SubstrateType.SHEET }))}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${currentProject.substrateType === SubstrateType.SHEET ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  <LayoutGrid size={14} />
-                  Láminas
-                </button>
-                <button 
-                  onClick={() => setCurrentProject(prev => ({ ...prev, substrateType: SubstrateType.ROLL }))}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${currentProject.substrateType === SubstrateType.ROLL ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  <Scroll size={14} />
-                  Rollos
-                </button>
+        <div className="w-10 h-10 rounded-full bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+          <Plus size={20} />
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col gap-4 overflow-hidden">
+        {/* Top Header */}
+        <header className="flex items-center justify-between px-4">
+          <div className="flex flex-col">
+            <h2 className="text-xl font-bold text-white/90">¡Buen día, MUNKIE!</h2>
+            <p className="text-xs text-white/40">MNK Est INK • Gestión de Producción</p>
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search projects..." 
+                className="bg-white/5 border border-white/10 rounded-full px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/50 w-64"
+              />
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+            </div>
+            <div className="flex items-center gap-4">
+              <Bell size={20} className="text-white/40 cursor-pointer hover:text-white" />
+              <ShoppingCart size={20} className="text-white/40 cursor-pointer hover:text-white" />
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer border border-white/10">
+                <User size={20} />
               </div>
             </div>
+          </div>
+        </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nombre del Proyecto</label>
-                  <input 
-                    type="text" 
-                    placeholder="Ej: Banner Promocional A"
-                    className="input-field"
-                    value={currentProject.name}
-                    onChange={e => setCurrentProject(prev => ({ ...prev, name: e.target.value }))}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Ancho (m)</label>
-                    <input 
-                      type="number" 
-                      step="0.01"
-                      className="input-field font-mono"
-                      value={currentProject.width || ''}
-                      onChange={e => setCurrentProject(prev => ({ ...prev, width: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Largo/Alto (m)</label>
-                    <input 
-                      type="number" 
-                      step="0.01"
-                      className="input-field font-mono"
-                      value={currentProject.height || ''}
-                      onChange={e => setCurrentProject(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Cantidad</label>
-                    <input 
-                      type="number" 
-                      className="input-field font-mono w-24"
-                      value={currentProject.quantity}
-                      onChange={e => setCurrentProject(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
-                    />
-                  </div>
-                  {currentProject.substrateType === SubstrateType.ROLL && (
-                    <button 
-                      onClick={setRollDefaults}
-                      className="text-[10px] font-bold text-indigo-600 hover:underline flex items-center gap-1"
-                    >
-                      <Info size={12} />
-                      Usar rollo estándar (1.5m x 50m)
-                    </button>
-                  )}
-                </div>
+        {/* Dashboard Grid */}
+        <div className="flex-1 grid grid-cols-12 gap-4 overflow-hidden">
+          {/* Left Column: Editor */}
+          <div className="col-span-8 flex flex-col gap-4 overflow-hidden">
+            {/* Project Info Card */}
+            <section className="glass-card p-6 flex items-center justify-between shrink-0 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10 flex-1">
+                <input 
+                  type="text" 
+                  value={projectName}
+                  onChange={e => setProjectName(e.target.value)}
+                  placeholder="NOMBRE DEL PROYECTO"
+                  className="bg-transparent border-none text-2xl font-black placeholder:text-white/10 focus:outline-none w-full uppercase tracking-tighter"
+                />
+                <p className="text-xs text-white/40 mt-1">Añade componentes como Rótulos, Cenefas, etc.</p>
               </div>
-
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                <h3 className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
-                  <Droplets size={14} className="text-indigo-500" />
-                  Consumo RIP (ml)
-                </h3>
-                <div className="space-y-3">
-                  {currentProject.inks.map(ink => (
-                    <div key={ink.id} className="flex items-center gap-3">
-                      <div className="w-24 text-xs font-semibold text-slate-700">{ink.name}</div>
-                      <div className="flex-1 relative">
-                        <input 
-                          type="number" 
-                          step="0.01"
-                          className="input-field font-mono pr-8 py-1.5 text-sm"
-                          value={ink.ml || ''}
-                          onChange={e => handleInkChange(ink.id, e.target.value)}
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">ml</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
               <button 
                 onClick={saveProject}
-                className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
+                className="btn-primary relative z-10"
               >
                 <Save size={18} />
-                Guardar Proyecto
+                Finalizar Proyecto
               </button>
-            </div>
-          </section>
+            </section>
 
-          {/* Results Summary */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="card p-5 bg-indigo-600 text-white border-none">
-              <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Área Total</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold font-mono">{calculations.totalArea.toFixed(3)}</span>
-                <span className="text-sm font-medium">m²</span>
-              </div>
-            </div>
-            <div className="card p-5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Tinta Total</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold font-mono text-slate-900">{calculations.totalInkMl.toFixed(2)}</span>
-                <span className="text-sm font-medium text-slate-500">ml</span>
-              </div>
-              <p className="text-[11px] text-slate-400 mt-1 font-mono">({calculations.totalInkL.toFixed(3)} L)</p>
-            </div>
-            <div className="card p-5 border-indigo-100 bg-indigo-50/30">
-              <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-1">Consumo por m²</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold font-mono text-indigo-700">{calculations.mlPerM2.toFixed(2)}</span>
-                <span className="text-sm font-medium text-indigo-600">ml/m²</span>
-              </div>
-            </div>
-          </section>
-        </div>
+            {/* Component Editor */}
+            <div className="flex-1 grid grid-cols-2 gap-4 overflow-hidden">
+              <section className="glass-card p-6 flex flex-col gap-4 overflow-y-auto">
+                <h3 className="text-sm font-bold flex items-center gap-2 text-brand-accent">
+                  <Calculator size={16} />
+                  NUEVO COMPONENTE
+                </h3>
+                
+                <div className="space-y-4">
+                  <input 
+                    type="text" 
+                    placeholder="Nombre (ej: Rótulo Principal)"
+                    className="input-field-dark"
+                    value={newComp.name}
+                    onChange={e => setNewComp(prev => ({ ...prev, name: e.target.value }))}
+                  />
 
-        {/* Right Column: Info/Tips */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="card p-6 bg-slate-900 text-white border-none">
-            <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-              <Info size={18} className="text-indigo-400" />
-              Guía de Uso
-            </h3>
-            <ul className="space-y-4 text-xs text-slate-300">
-              <li className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">1</div>
-                <p>Seleccione el tipo de sustrato (Lámina o Rollo).</p>
-              </li>
-              <li className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">2</div>
-                <p>Ingrese las dimensiones en metros. Para rollos, puede usar el botón de acceso rápido.</p>
-              </li>
-              <li className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">3</div>
-                <p>Copie los valores de mililitros (ml) que le proporciona su software RIP.</p>
-              </li>
-              <li className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">4</div>
-                <p>El sistema calculará automáticamente el rendimiento por metro cuadrado.</p>
-              </li>
-            </ul>
+                  <div className="flex bg-white/5 p-1 rounded-xl">
+                    <button 
+                      onClick={() => setNewComp(prev => ({ ...prev, substrateType: SubstrateType.SHEET }))}
+                      className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${newComp.substrateType === SubstrateType.SHEET ? 'bg-brand-accent text-white' : 'text-white/40'}`}
+                    >
+                      LÁMINAS
+                    </button>
+                    <button 
+                      onClick={() => setNewComp(prev => ({ ...prev, substrateType: SubstrateType.ROLL }))}
+                      className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${newComp.substrateType === SubstrateType.ROLL ? 'bg-brand-accent text-white' : 'text-white/40'}`}
+                    >
+                      ROLLOS
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Ancho (m)</label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        className="input-field-dark font-mono"
+                        value={newComp.width || ''}
+                        onChange={e => setNewComp(prev => ({ ...prev, width: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Alto (m)</label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        className="input-field-dark font-mono"
+                        value={newComp.height || ''}
+                        onChange={e => setNewComp(prev => ({ ...prev, height: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Cantidad</label>
+                    <input 
+                      type="number" 
+                      className="input-field-dark font-mono"
+                      value={newComp.quantity}
+                      onChange={e => setNewComp(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                    />
+                  </div>
+
+                  <div className="bg-white/5 rounded-2xl p-4 space-y-3">
+                    <p className="text-[10px] font-bold text-white/30 uppercase">Consumo RIP (ml)</p>
+                    {newComp.inks.map(ink => (
+                      <div key={ink.id} className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold w-16 text-white/60">{ink.name}</span>
+                        <input 
+                          type="number" 
+                          className="flex-1 bg-transparent border-b border-white/10 text-xs font-mono focus:outline-none focus:border-brand-accent py-1"
+                          value={ink.ml || ''}
+                          onChange={e => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setNewComp(prev => ({
+                              ...prev,
+                              inks: prev.inks.map(i => i.id === ink.id ? { ...i, ml: val } : i)
+                            }));
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={addComponent}
+                    className="btn-secondary w-full"
+                  >
+                    <Plus size={18} />
+                    Añadir Componente
+                  </button>
+                </div>
+              </section>
+
+              {/* Components List */}
+              <section className="glass-card p-6 flex flex-col gap-4 overflow-y-auto">
+                <h3 className="text-sm font-bold flex items-center gap-2 text-brand-secondary">
+                  <Layers size={16} />
+                  LISTA DE COMPONENTES
+                </h3>
+                
+                <div className="space-y-3">
+                  <AnimatePresence mode="popLayout">
+                    {components.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 text-white/20 gap-2">
+                        <Package size={32} />
+                        <p className="text-[10px] font-bold uppercase">Vacío</p>
+                      </div>
+                    ) : (
+                      components.map(comp => (
+                        <motion.div 
+                          key={comp.id}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between group"
+                        >
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-white/80">{comp.name}</span>
+                            <span className="text-[10px] text-white/30 font-mono">
+                              {comp.width}x{comp.height}m • x{comp.quantity} • {comp.area.toFixed(2)}m²
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(1)}ml</span>
+                            <button 
+                              onClick={() => removeComponent(comp.id)}
+                              className="text-white/20 hover:text-brand-accent transition-colors"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))
+                    )}
+                  </AnimatePresence>
+                </div>
+              </section>
+            </div>
           </div>
 
-          <div className="card p-6 border-dashed border-2 border-slate-200 bg-transparent">
-            <h3 className="text-sm font-bold text-slate-700 mb-2">¿Sabías que?</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Un consumo promedio eficiente en impresión UV suele rondar los 8-12 ml/m² dependiendo de la saturación y el tipo de cabezal. Monitorear este valor te ayuda a presupuestar mejor tus trabajos.
-            </p>
+          {/* Right Column: Stats & History */}
+          <div className="col-span-4 flex flex-col gap-4 overflow-hidden">
+            {/* Statistics Card */}
+            <section className="glass-card p-8 flex flex-col items-center justify-center gap-6 relative shrink-0">
+              <div className="absolute top-6 left-6 text-[10px] font-bold text-white/30 uppercase tracking-widest">Your Statistic</div>
+              
+              <div className="relative w-48 h-48 flex items-center justify-center">
+                {/* Gauge visualization (simplified) */}
+                <div className="absolute inset-0 rounded-full border-[12px] border-white/5" />
+                <div className="absolute inset-0 rounded-full border-[12px] border-brand-accent border-t-transparent border-l-transparent rotate-45" />
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-white/40 font-bold uppercase">Total ml</span>
+                  <span className="text-4xl font-black font-mono tracking-tighter">{totals.totalInkMl.toFixed(1)}</span>
+                  <span className="text-[10px] text-brand-accent font-bold mt-1">{totals.mlPerM2.toFixed(2)} ml/m²</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 w-full gap-4">
+                <StatMini label="Área" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
+                <StatMini label="Litros" value={`${(totals.totalInkMl/1000).toFixed(2)}`} unit="L" color="bg-brand-secondary" />
+                <StatMini label="Comp." value={`${components.length}`} unit="und" color="bg-purple-500" />
+              </div>
+            </section>
+
+            {/* History Card */}
+            <section className="glass-card flex-1 p-6 flex flex-col gap-4 overflow-hidden">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white/80">LAST PROJECTS</h3>
+                <span className="text-[10px] font-bold text-white/30 hover:text-white cursor-pointer transition-colors">See More</span>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                {projects.map(p => (
+                  <div key={p.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 hover:bg-white/10 transition-all cursor-pointer group">
+                    <div className="w-10 h-10 rounded-xl bg-brand-accent/20 flex items-center justify-center text-brand-accent">
+                      <FileText size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold truncate uppercase">{p.name}</h4>
+                      <p className="text-[10px] text-white/30">{p.date}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-xs font-bold font-mono">{p.totalInkMl.toFixed(1)}ml</span>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
+                        className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-brand-accent transition-all"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </main>
 
-      {/* History Section */}
-      <section className="max-w-7xl mx-auto px-4 mt-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <History size={22} className="text-slate-400" />
-            Historial de Proyectos
-          </h2>
-          <span className="text-xs font-bold text-slate-400 uppercase">{projects.length} Proyectos Guardados</span>
-        </div>
-
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50">
-                  <th className="p-4 data-grid-header">Proyecto</th>
-                  <th className="p-4 data-grid-header">Fecha</th>
-                  <th className="p-4 data-grid-header">Sustrato</th>
-                  <th className="p-4 data-grid-header text-right">Área (m²)</th>
-                  <th className="p-4 data-grid-header text-right">Tinta Total (ml)</th>
-                  <th className="p-4 data-grid-header text-right">ml/m²</th>
-                  <th className="p-4 data-grid-header text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                <AnimatePresence mode="popLayout">
-                  {projects.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-12 text-center">
-                        <div className="flex flex-col items-center gap-2 text-slate-400">
-                          <FileText size={48} strokeWidth={1} />
-                          <p className="text-sm font-medium">No hay proyectos guardados aún.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    projects.map((project) => (
-                      <motion.tr 
-                        key={project.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="hover:bg-slate-50/50 transition-colors group"
-                      >
-                        <td className="p-4">
-                          <div className="font-bold text-slate-900">{project.name}</div>
-                        </td>
-                        <td className="p-4">
-                          <div className="text-xs text-slate-500">{project.date}</div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            {project.substrateType === SubstrateType.ROLL ? (
-                              <Scroll size={14} className="text-indigo-500" />
-                            ) : (
-                              <LayoutGrid size={14} className="text-emerald-500" />
-                            )}
-                            <span className="text-xs font-medium text-slate-600">{project.substrateType}</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-right font-mono text-sm">{project.totalArea.toFixed(3)}</td>
-                        <td className="p-4 text-right font-mono text-sm">{project.totalInkMl.toFixed(2)}</td>
-                        <td className="p-4 text-right">
-                          <span className="inline-flex items-center px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 font-mono text-xs font-bold">
-                            {project.mlPerM2.toFixed(2)}
-                          </span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <button 
-                            onClick={() => deleteProject(project.id)}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                            title="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </motion.tr>
-                    ))
-                  )}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="mt-20 py-8 border-t border-slate-200 text-center">
-        <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">
-          desarrollado con amor por{' '}
-          <a 
-            href="https://munkiedigitalecuador.vercel.app/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-indigo-500 hover:underline"
-          >
-            munkiedigitalecuador
-          </a>{' '}
-          © 2026
-        </p>
-      </footer>
-
       {/* Social Bubbles */}
-      <div className="fixed right-6 bottom-24 flex flex-col gap-3 z-50">
-        <motion.a
-          whileHover={{ scale: 1.1, x: -5 }}
-          whileTap={{ scale: 0.9 }}
-          href="https://instagram.com/bryant_ldu"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-12 h-12 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 rounded-full flex items-center justify-center text-white shadow-lg"
-          title="Instagram"
+      <div className="fixed right-8 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-50">
+        <SocialIcon 
+          href="https://instagram.com/bryant_ldu" 
+          delay={0}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-        </motion.a>
-        <motion.a
-          whileHover={{ scale: 1.1, x: -5 }}
-          whileTap={{ scale: 0.9 }}
-          href="https://facebook.com/bryant.ldu"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-12 h-12 bg-[#1877F2] rounded-full flex items-center justify-center text-white shadow-lg"
-          title="Facebook"
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E4405F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+        </SocialIcon>
+        <SocialIcon 
+          href="https://facebook.com/bryant.ldu" 
+          delay={0.5}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-        </motion.a>
-        <motion.a
-          whileHover={{ scale: 1.1, x: -5 }}
-          whileTap={{ scale: 0.9 }}
-          href="https://wa.me/593998257855"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-12 h-12 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-lg"
-          title="WhatsApp"
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1877F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </SocialIcon>
+        <SocialIcon 
+          href="https://wa.me/593998257855" 
+          delay={1}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        </motion.a>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </SocialIcon>
+      </div>
+
+      {/* Credits Footer overlay */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white/20 uppercase tracking-widest text-center whitespace-nowrap">
+        desarrollado con amor por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">munkiedigitalecuador</a> © 2026
       </div>
     </div>
   );
 }
+
+function SidebarIcon({ icon, active = false }: { icon: React.ReactNode, active?: boolean }) {
+  return (
+    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer transition-all ${active ? 'bg-brand-accent text-white shadow-lg shadow-brand-accent/20' : 'text-white/30 hover:text-white hover:bg-white/5'}`}>
+      {icon}
+    </div>
+  );
+}
+
+function StatMini({ label, value, unit, color }: { label: string, value: string, unit: string, color: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white shadow-lg shadow-black/20`}>
+        <span className="text-[10px] font-bold">{unit}</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-xs font-black font-mono">{value}</span>
+        <span className="text-[8px] font-bold text-white/30 uppercase">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+function SocialIcon({ children, href, delay }: { children: React.ReactNode, href: string, delay: number }) {
+  return (
+    <motion.a
+      animate={{
+        y: [0, -8, 0],
+        x: [0, 3, 0],
+      }}
+      transition={{
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: delay
+      }}
+      whileHover={{ scale: 1.1, filter: "brightness(1.2)" }}
+      whileTap={{ scale: 0.9 }}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-14 h-14 soap-bubble rounded-full flex items-center justify-center text-white shadow-xl cursor-pointer"
+    >
+      {children}
+    </motion.a>
+  );
+}
+

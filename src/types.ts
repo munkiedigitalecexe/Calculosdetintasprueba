@@ -9,15 +9,23 @@ export interface InkComponent {
   ml: number;
 }
 
-export interface Project {
+export interface ProjectComponent {
   id: string;
   name: string;
-  date: string;
   substrateType: SubstrateType;
   width: number; // in meters
   height: number; // in meters
   quantity: number;
   inks: InkComponent[];
+  area: number;
+  inkMl: number;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  date: string;
+  components: ProjectComponent[];
   totalArea: number; // m2
   totalInkMl: number;
   mlPerM2: number;
