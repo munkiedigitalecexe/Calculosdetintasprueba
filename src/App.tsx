@@ -350,7 +350,11 @@ export default function App() {
       <div className="flex flex-col md:flex-row flex-1 gap-2 md:gap-4 overflow-y-auto md:overflow-hidden mb-4">
         {/* Sidebar */}
         <aside className="w-full md:w-20 glass-card flex flex-row md:flex-col items-center py-4 md:py-8 px-4 md:px-0 gap-4 md:gap-8 shrink-0">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl overflow-hidden bg-white p-1">
+          <div 
+            className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl overflow-hidden bg-white p-1 cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => window.location.href = '/'}
+            title="Ir al Dashboard"
+          >
             <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
           </div>
           
@@ -662,7 +666,10 @@ export default function App() {
                               </div>
                             </div>
                             <div className="flex items-center gap-4">
-                              <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(2)}ml</span>
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(2)}ml</span>
+                                <span className="text-[8px] text-white/40 font-mono uppercase">{(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²</span>
+                              </div>
                               <button 
                                 onClick={() => removeComponent(comp.id)}
                                 className="text-white/20 hover:text-brand-accent transition-colors"
