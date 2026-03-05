@@ -18,6 +18,7 @@ import {
   ShoppingCart,
   User,
   Home,
+  LogOut,
   Settings,
   PieChart,
   Package,
@@ -46,6 +47,11 @@ export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectName, setProjectName] = useState('');
   const [components, setComponents] = useState<ProjectComponent[]>([]);
+  const [userRole, setUserRole] = useState<'admin' | 'guest' | null>(null);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginError, setLoginError] = useState<string>('');
+  const [editingId, setEditingId] = useState<string | null>(null);
   
   // Form state for a single component being added
   const [newComp, setNewComp] = useState({
@@ -78,6 +84,13 @@ export default function App() {
   }, [productionMode, newComp.unitsPerStrip, newComp.totalUnitsTarget]);
 
   useEffect(() => {
+    const savedRole = localStorage.getItem('mnk_ink_role');
+    const savedEmail = localStorage.getItem('mnk_ink_email');
+    if (savedRole && savedEmail) {
+      setUserRole(savedRole as 'admin' | 'guest');
+      setUserEmail(savedEmail);
+    }
+
     const savedProjects = localStorage.getItem('mnk_ink_projects');
     if (savedProjects) {
       try {
@@ -112,6 +125,34 @@ export default function App() {
     localStorage.setItem('mnk_ink_current_components', JSON.stringify(components));
   }, [components]);
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = loginEmail.toLowerCase().trim();
+    
+    if (email === 'bryanstalin11@gmail.com') {
+      setUserRole('admin');
+      setUserEmail(email);
+      localStorage.setItem('mnk_ink_role', 'admin');
+      localStorage.setItem('mnk_ink_email', email);
+      setLoginError('');
+    } else if (email === 'holamunkie@demo.com') {
+      setUserRole('guest');
+      setUserEmail(email);
+      localStorage.setItem('mnk_ink_role', 'guest');
+      localStorage.setItem('mnk_ink_email', email);
+      setLoginError('');
+    } else {
+      setLoginError('Correo no autorizado. Contacte al administrador.');
+    }
+  };
+
+  const logout = () => {
+    setUserRole(null);
+    setUserEmail('');
+    localStorage.removeItem('mnk_ink_role');
+    localStorage.removeItem('mnk_ink_email');
+  };
+
   const addComponent = () => {
     if (!newComp.name) {
       alert("Asigne un nombre al componente (ej: Rótulo, Cenefa)");
@@ -135,7 +176,7 @@ export default function App() {
     }
 
     const component: ProjectComponent = {
-      id: crypto.randomUUID(),
+      id: editingId || crypto.randomUUID(),
       name: newComp.name,
       substrateType: newComp.substrateType,
       width,
@@ -150,7 +191,13 @@ export default function App() {
       rollsNeeded: rollsNeeded > 0 ? rollsNeeded : undefined
     };
 
-    setComponents(prev => [...prev, component]);
+    if (editingId) {
+      setComponents(prev => prev.map(c => c.id === editingId ? component : c));
+      setEditingId(null);
+    } else {
+      setComponents(prev => [...prev, component]);
+    }
+
     setNewComp({
       name: '',
       substrateType: SubstrateType.SHEET,
@@ -161,6 +208,21 @@ export default function App() {
       totalUnitsTarget: '0',
       rollLength: String(DEFAULT_ROLL_LENGTH),
       inks: INITIAL_INKS.map(ink => ({ ...ink, ml: '0' })),
+    });
+  };
+
+  const startEdit = (comp: ProjectComponent) => {
+    setEditingId(comp.id);
+    setNewComp({
+      name: comp.name,
+      substrateType: comp.substrateType,
+      width: String(comp.width),
+      height: String(comp.height),
+      quantity: String(comp.quantity),
+      unitsPerStrip: String(comp.unitsPerStrip || 0),
+      totalUnitsTarget: String(comp.totalUnitsTarget || 0),
+      rollLength: String(comp.rollLength || DEFAULT_ROLL_LENGTH),
+      inks: comp.inks.map(ink => ({ ...ink, ml: String(ink.ml) })),
     });
   };
 
@@ -353,6 +415,83 @@ export default function App() {
   return (
     <div className="flex flex-col min-h-screen bg-brand-bg text-white selection:bg-brand-accent/40 selection:text-black font-sans overflow-x-hidden">
       <AnimatePresence>
+        {!userRole && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4"
+          >
+            <div className="max-w-md w-full flex flex-col items-center gap-8">
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="w-24 h-24 rounded-full bg-white p-2 shadow-[0_0_50px_rgba(255,255,255,0.2)]"
+              >
+                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" />
+              </motion.div>
+              
+              <div className="text-center space-y-2">
+                <h1 className="text-3xl font-display font-black uppercase tracking-tighter">Munkie Production</h1>
+                <p className="text-white/40 text-sm font-bold uppercase tracking-widest">Ingreso al Sistema de Producción</p>
+              </div>
+
+              <form onSubmit={handleLogin} className="w-full space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Correo Electrónico</label>
+                  <input 
+                    type="email" 
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    placeholder="ejemplo@munkie.com"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl h-14 px-6 text-sm font-bold focus:outline-none focus:border-brand-accent/50 focus:bg-white/[0.05] transition-all"
+                    required
+                  />
+                </div>
+
+                {loginError && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-400 text-[10px] font-bold uppercase tracking-widest text-center"
+                  >
+                    {loginError}
+                  </motion.p>
+                )}
+
+                <button 
+                  type="submit"
+                  className="w-full bg-brand-accent text-black h-14 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-accent/20"
+                >
+                  Entrar al Sistema
+                </button>
+
+                <div className="pt-4 flex flex-col gap-2">
+                  <p className="text-[10px] text-white/20 uppercase font-bold tracking-widest text-center">Accesos Rápidos (Demo)</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setLoginEmail('bryanstalin11@gmail.com')}
+                      className="text-[9px] font-bold text-white/40 hover:text-brand-accent transition-colors uppercase"
+                    >
+                      Admin Demo
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setLoginEmail('holamunkie@demo.com')}
+                      className="text-[9px] font-bold text-white/40 hover:text-brand-accent transition-colors uppercase"
+                    >
+                      Guest Demo
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              <p className="text-[10px] text-white/20 uppercase font-bold tracking-widest">Desarrollado por Munkie Digital Ecuador</p>
+            </div>
+          </motion.div>
+        )}
+
         {showWelcome && (
           <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
             <motion.div
@@ -366,8 +505,15 @@ export default function App() {
                 <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none opacity-60">Bienvenido a</span>
-                <span className="text-base font-black uppercase tracking-tight leading-none">Munkie Production System</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none opacity-60">
+                  {userRole === 'guest' ? 'Acceso de Consulta' : 'Bienvenido al Sistema'}
+                </span>
+                <span className="text-base font-black uppercase tracking-tight leading-none">
+                  {userRole === 'guest' ? 'MODO INVITADO: RESTRICCIÓN DE ESCRITURA' : 'Munkie Production System'}
+                </span>
+                {userRole === 'guest' && (
+                  <span className="text-[9px] font-bold uppercase mt-1 opacity-70">Este perfil no cuenta con permisos para modificar, replicar o editar registros en la base de datos.</span>
+                )}
               </div>
               <button 
                 onClick={() => setShowWelcome(false)} 
@@ -408,8 +554,13 @@ export default function App() {
           {/* Gaming Top Bar */}
           <div className="flex items-center justify-between px-6 py-4 glass-card shrink-0 relative z-50">
             <div className="flex items-center gap-6">
-              <div className="p-2.5 rounded-xl bg-brand-surface border border-white/5 hover:text-brand-accent transition-colors cursor-pointer group">
-                <Settings size={20} className="text-white/40 group-hover:text-brand-accent transition-colors" />
+              <div 
+                onClick={logout}
+                className="p-2.5 rounded-xl bg-brand-surface border border-white/5 hover:text-red-400 hover:bg-red-400/10 transition-all cursor-pointer group flex items-center gap-2"
+                title="Cerrar Sesión"
+              >
+                <LogOut size={20} className="text-white/40 group-hover:text-red-400 transition-colors" />
+                <span className="text-[10px] font-black uppercase tracking-widest hidden md:block text-white/20 group-hover:text-red-400">Salir</span>
               </div>
               <div className="flex items-center gap-3 bg-brand-surface/50 px-5 py-2.5 rounded-2xl border border-white/5 shadow-inner group cursor-pointer hover:border-brand-accent/30 transition-all">
                 <div className="w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-[11px] shadow-[0_0_15px_rgba(250,204,21,0.5)]">
@@ -420,11 +571,28 @@ export default function App() {
             </div>
 
             <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
+              <a 
+                href="https://munkiedigitalecuador.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[9px] font-black text-white/40 hover:text-brand-accent transition-colors uppercase tracking-[0.2em] mb-2 text-center"
+              >
+                Diseñado y desarrollado con ❤️ por<br/>
+                <span className="text-brand-accent">Munkie Digital Ecuador</span>
+              </a>
               <div className="w-14 h-14 rounded-full border-2 border-brand-accent p-0.5 shadow-[0_0_25px_rgba(196,255,14,0.4)] bg-brand-bg relative group cursor-pointer">
                 <img src={LOGO_URL} alt="User" className="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-brand-accent text-black text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg">
-                  online
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-brand-accent text-black text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg whitespace-nowrap">
+                  {userRole === 'admin' ? 'admin' : 'guest'}
                 </div>
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1.5 rounded-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  {userEmail}
+                </div>
+              </div>
+              <div className="flex items-center gap-4 mt-3">
+                <a href="https://instagram.com/bryant_ldu" target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-brand-accent transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
+                <a href="https://wa.me/593998257855" target="_blank" rel="noopener noreferrer" className="text-white/20 hover:text-brand-accent transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>
+                <span className="text-[8px] font-black text-white/10 uppercase tracking-widest">SÍGUEME Y COTIZA AQUÍ</span>
               </div>
             </div>
 
@@ -459,7 +627,8 @@ export default function App() {
                         value={projectName}
                         onChange={e => setProjectName(e.target.value)}
                         placeholder="PROJECT NAME"
-                        className="bg-transparent border-none text-2xl md:text-5xl font-display font-bold placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-white selection:bg-brand-accent/40"
+                        disabled={userRole === 'guest'}
+                        className="bg-transparent border-none text-2xl md:text-5xl font-display font-bold placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-white selection:bg-brand-accent/40 disabled:cursor-not-allowed"
                       />
                     </div>
                     <div className="flex items-center gap-3 mt-1.5">
@@ -470,25 +639,35 @@ export default function App() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4 w-full md:w-auto relative z-10">
-                  <button 
-                    onClick={() => {
-                      if (confirm("¿Desea limpiar el proyecto actual?")) {
-                        setComponents([]);
-                        setProjectName('');
-                      }
-                    }}
-                    className="p-5 rounded-lg bg-brand-secondary border border-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-95 group/trash"
-                    title="Limpiar Todo"
-                  >
-                    <Trash2 size={24} className="group-hover/trash:rotate-12 transition-transform" />
-                  </button>
-                  <button 
-                    onClick={saveProject}
-                    className="btn-primary flex-1 md:flex-none h-16 px-10 text-lg"
-                  >
-                    <Save size={22} />
-                    SAVE PROJECT
-                  </button>
+                  {userRole === 'admin' && (
+                    <>
+                      <button 
+                        onClick={() => {
+                          if (confirm("¿Desea limpiar el proyecto actual?")) {
+                            setComponents([]);
+                            setProjectName('');
+                            setEditingId(null);
+                          }
+                        }}
+                        className="p-5 rounded-lg bg-brand-secondary border border-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-95 group/trash"
+                        title="Limpiar Todo"
+                      >
+                        <Trash2 size={24} className="group-hover/trash:rotate-12 transition-transform" />
+                      </button>
+                      <button 
+                        onClick={saveProject}
+                        className="btn-primary flex-1 md:flex-none h-16 px-10 text-lg"
+                      >
+                        <Save size={22} />
+                        SAVE PROJECT
+                      </button>
+                    </>
+                  )}
+                  {userRole === 'guest' && (
+                    <div className="bg-white/5 px-6 py-4 rounded-2xl border border-white/10 text-white/30 text-[10px] font-bold uppercase tracking-widest">
+                      Modo Lectura Activo
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -497,10 +676,10 @@ export default function App() {
                 <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
                   <h3 className="text-sm font-display font-bold flex items-center gap-2 text-brand-accent sticky top-0 bg-brand-card py-2 z-20 uppercase tracking-widest border-b border-brand-accent/20 mb-4">
                     <Calculator size={16} />
-                    ADD COMPONENT
+                    {editingId ? 'EDIT COMPONENT' : 'ADD COMPONENT'}
                   </h3>
                   
-                  <div className="space-y-4">
+                  <div className={`space-y-4 ${userRole === 'guest' ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="relative group">
                       <Package size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-accent transition-colors" />
                       <input 
@@ -675,8 +854,8 @@ export default function App() {
                         <span className="text-[10px] font-bold text-brand-accent/60 uppercase tracking-widest">Valores por pieza</span>
                       </div>
                       <div className="grid grid-cols-1 gap-4">
-                        {newComp.inks.map(ink => (
-                          <div key={ink.id} className="flex items-center gap-4 group/ink">
+                        {newComp.inks.map((ink, idx) => (
+                          <div key={`${ink.id}-new-${idx}`} className="flex items-center gap-4 group/ink">
                             <div className="flex items-center gap-3 w-24 shrink-0">
                                   <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${
                                     ink.id === 'cyan' ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.4)]' : 
@@ -710,11 +889,32 @@ export default function App() {
 
                     <button 
                       onClick={addComponent}
-                      className="btn-secondary w-full mb-8"
+                      className={`btn-secondary w-full mb-8 ${editingId ? 'bg-brand-accent text-black border-brand-accent' : ''}`}
                     >
-                      <Plus size={18} />
-                      Añadir Componente
+                      {editingId ? <Save size={18} /> : <Plus size={18} />}
+                      {editingId ? 'Guardar Cambios' : 'Añadir Componente'}
                     </button>
+                    {editingId && (
+                      <button 
+                        onClick={() => {
+                          setEditingId(null);
+                          setNewComp({
+                            name: '',
+                            substrateType: SubstrateType.SHEET,
+                            width: '0',
+                            height: '0',
+                            quantity: '1',
+                            unitsPerStrip: '0',
+                            totalUnitsTarget: '0',
+                            rollLength: String(DEFAULT_ROLL_LENGTH),
+                            inks: INITIAL_INKS.map(ink => ({ ...ink, ml: '0' })),
+                          });
+                        }}
+                        className="w-full py-3 text-[10px] font-black text-white/30 uppercase tracking-widest hover:text-white transition-colors"
+                      >
+                        Cancelar Edición
+                      </button>
+                    )}
                   </div>
                 </section>
 
@@ -785,25 +985,37 @@ export default function App() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-5">
-                                  <div className="flex flex-col items-end">
+                                <div className="flex flex-col items-end">
                                   <div className="flex items-center gap-2">
                                     <Droplets size={14} className="text-brand-accent" />
                                     <span className="text-xl font-display font-black text-white tracking-tighter">{comp.inkMl.toFixed(1)}<span className="text-xs text-white/30 ml-0.5">ml</span></span>
                                   </div>
                                 </div>
-                                <button 
-                                  onClick={() => removeComponent(comp.id)}
-                                  className="p-3 rounded-2xl bg-white/[0.03] text-white/10 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90 border border-white/[0.05]"
-                                >
-                                  <X size={18} />
-                                </button>
+                                {userRole === 'admin' && (
+                                  <div className="flex items-center gap-2">
+                                    <button 
+                                      onClick={() => startEdit(comp)}
+                                      className="p-3 rounded-2xl bg-white/[0.03] text-white/10 hover:text-brand-accent hover:bg-brand-accent/10 transition-all active:scale-90 border border-white/[0.05]"
+                                      title="Editar Componente"
+                                    >
+                                      <Settings size={18} />
+                                    </button>
+                                    <button 
+                                      onClick={() => removeComponent(comp.id)}
+                                      className="p-3 rounded-2xl bg-white/[0.03] text-white/10 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90 border border-white/[0.05]"
+                                      title="Eliminar Componente"
+                                    >
+                                      <X size={18} />
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             
                             {/* Per Component Color Breakdown */}
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-5 border-t border-white/[0.05] relative z-10">
-                              {comp.inks.map(ink => (
-                                <div key={ink.id} className="flex flex-col gap-2 bg-white/[0.02] p-3 rounded-2xl border border-white/[0.03] hover:bg-white/[0.04] transition-colors">
+                              {comp.inks.map((ink, idx) => (
+                                <div key={`${comp.id}-${ink.id}-${idx}`} className="flex flex-col gap-2 bg-white/[0.02] p-3 rounded-2xl border border-white/[0.03] hover:bg-white/[0.04] transition-colors">
                                   <div className="flex items-center gap-2">
                             <div className={`w-2 h-2 rounded-full shadow-sm ${
                               ink.id === 'cyan' ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 
@@ -881,8 +1093,8 @@ export default function App() {
                     Consumo por Color
                   </div>
                   <div className="space-y-4">
-                    {totals.inkTotals.map(ink => (
-                      <div key={ink.id} className="group">
+                    {totals.inkTotals.map((ink, idx) => (
+                      <div key={`${ink.id}-total-${idx}`} className="group">
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-center gap-2.5">
                             <div className={`w-3 h-3 rounded-full shadow-lg ${
