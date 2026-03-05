@@ -1,84 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;600;800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --color-brand-bg: #0A0F1E;
-  --color-brand-card: #161C2D;
+  --color-brand-bg: #08090D;
+  --color-brand-card: #12141C;
   --color-brand-accent: #3B82F6;
   --color-brand-secondary: #60A5FA;
+  --color-brand-ink: #1E293B;
 }
 
 body {
-  @apply bg-brand-bg text-white font-sans overflow-x-hidden;
+  @apply bg-brand-bg text-white font-sans overflow-x-hidden antialiased;
 }
 
 .glass-card {
-  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem];
+  @apply bg-white/[0.03] backdrop-blur-2xl border border-white/[0.08] rounded-[2.5rem] shadow-2xl;
 }
 
 .input-field-dark {
-  @apply w-full px-4 py-3 bg-brand-bg/50 border border-white/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent transition-all text-sm text-white placeholder:text-white/30;
+  @apply w-full px-5 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent/50 transition-all text-sm text-white placeholder:text-white/20 font-medium;
 }
 
 .btn-primary {
-  @apply bg-brand-accent hover:bg-brand-accent/90 text-white font-bold py-3 px-6 rounded-2xl transition-all shadow-lg shadow-brand-accent/20 flex items-center justify-center gap-2;
+  @apply bg-brand-accent hover:bg-brand-accent/90 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-xl shadow-brand-accent/20 flex items-center justify-center gap-2 active:scale-95;
 }
 
 .btn-secondary {
-  @apply bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-2;
-}
-
-/* Soap Bubble Effect */
-.soap-bubble {
-  position: relative;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0) 70%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(4px);
-  box-shadow: 
-    inset 0 0 15px rgba(255, 255, 255, 0.1),
-    inset -5px -5px 15px rgba(0, 0, 0, 0.2),
-    0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.soap-bubble::before {
-  content: '';
-  position: absolute;
-  top: 15%;
-  left: 15%;
-  width: 25%;
-  height: 25%;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  filter: blur(2px);
-  transform: rotate(-45deg);
-}
-
-.soap-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: 15%;
-  right: 15%;
-  width: 15%;
-  height: 15%;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  filter: blur(1px);
+  @apply bg-white/[0.05] hover:bg-white/[0.1] text-white font-bold py-4 px-8 rounded-2xl transition-all flex items-center justify-center gap-2 border border-white/[0.05] active:scale-95;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-white to-white/40;
+}
+
+.card-hover {
+  @apply hover:bg-white/[0.06] hover:border-white/[0.15] transition-all duration-300;
 }
 
