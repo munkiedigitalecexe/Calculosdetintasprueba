@@ -5,52 +5,52 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --color-brand-bg: #05060A;
-  --color-brand-card: #0F111A;
-  --color-brand-accent: #3B82F6;
-  --color-brand-secondary: #60A5FA;
+  --color-brand-bg: #050505;
+  --color-brand-card: #0F0F0F;
+  --color-brand-accent: #45F882;
+  --color-brand-secondary: #2A2A2A;
   --color-brand-ink: #1E293B;
-  --color-brand-surface: #161924;
+  --color-brand-surface: #121212;
 }
 
 body {
-  @apply bg-brand-bg text-white/95 font-sans overflow-x-hidden antialiased selection:bg-brand-accent/40 selection:text-white;
+  @apply bg-brand-bg text-white/95 font-sans overflow-x-hidden antialiased selection:bg-brand-accent/40 selection:text-black;
 }
 
 .glass-card {
-  @apply bg-brand-card/80 backdrop-blur-3xl border border-white/[0.12] rounded-[2.5rem] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.6)] relative overflow-hidden;
+  @apply bg-brand-card border border-white/5 rounded-xl shadow-2xl relative overflow-hidden;
 }
 
 .glass-card::before {
   content: "";
-  @apply absolute inset-0 bg-gradient-to-br from-white/[0.1] to-transparent pointer-events-none;
+  @apply absolute inset-0 bg-gradient-to-br from-brand-accent/5 to-transparent pointer-events-none;
 }
 
 .input-field-dark {
-  @apply w-full px-6 py-4 bg-white/[0.05] border border-white/[0.15] rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent/70 transition-all text-sm text-white placeholder:text-white/30 font-bold shadow-inner;
+  @apply w-full px-6 py-4 bg-brand-surface border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent transition-all text-sm text-white placeholder:text-white/20 font-semibold shadow-inner;
 }
 
 .btn-primary {
-  @apply bg-brand-accent hover:bg-brand-accent/90 text-white font-extrabold py-4 px-8 rounded-2xl transition-all shadow-[0_16px_32px_-12px_rgba(59,130,246,0.6)] flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:pointer-events-none uppercase tracking-wider text-sm;
+  @apply bg-brand-accent hover:bg-brand-accent/90 text-black font-extrabold py-4 px-8 rounded-lg transition-all shadow-[0_0_20px_rgba(69,248,130,0.3)] flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest text-sm;
 }
 
 .btn-secondary {
-  @apply bg-white/[0.06] hover:bg-white/[0.1] text-white font-bold py-4 px-8 rounded-2xl transition-all flex items-center justify-center gap-2 border border-white/[0.1] active:scale-95 uppercase tracking-wider text-xs;
+  @apply bg-brand-secondary hover:bg-white/10 text-white font-bold py-4 px-8 rounded-lg transition-all flex items-center justify-center gap-2 border border-white/5 active:scale-95 uppercase tracking-wider text-xs;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #050505;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+  @apply bg-brand-accent/20 rounded-full hover:bg-brand-accent/40 transition-colors;
 }
 
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40;
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-brand-accent to-brand-accent/50;
 }
 
 .card-hover {

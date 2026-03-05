@@ -365,39 +365,42 @@ export default function App() {
             <SidebarIcon icon={<Settings size={20} />} />
           </nav>
 
-          <div className="w-10 h-10 rounded-full bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0">
-            <Plus size={20} />
+          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_#45F882]" onClick={() => { setProjectName(''); setComponents([]); }}>
+            <Plus size={20} className="text-black" />
           </div>
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col gap-4 overflow-y-auto md:overflow-hidden">
           {/* Top Header */}
-          <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-2 gap-4 md:gap-0 shrink-0">
+          <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-4 gap-4 md:gap-0 shrink-0 border-b border-white/5 bg-brand-card/50 backdrop-blur-md">
             <div className="flex flex-col">
-              <h2 className="text-2xl md:text-3xl font-display font-black text-gradient tracking-tight">¡Buen día, MUNKIE!</h2>
-              <p className="text-xs md:text-sm text-white/30 font-bold uppercase tracking-[0.3em] mt-1">MNK Est INK • Gestión de Producción</p>
+              <h2 className="text-2xl md:text-4xl font-display font-black text-brand-accent tracking-tighter uppercase italic">MUNKIE PRODUCTION</h2>
+              <p className="text-xs text-white/40 font-bold uppercase tracking-[0.4em] mt-1 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
+                System Active • Ink Management v2.0
+              </p>
             </div>
             
             <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
               <div className="relative w-full md:w-72 group">
                 <input 
                   type="text" 
-                  placeholder="Buscar proyectos..." 
-                  className="bg-white/[0.03] border border-white/[0.08] rounded-full px-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/40 w-full transition-all group-focus-within:bg-white/[0.06]"
+                  placeholder="SEARCH PROJECTS..." 
+                  className="bg-brand-surface border border-white/10 rounded-lg px-12 py-3 text-xs focus:outline-none focus:ring-1 focus:ring-brand-accent w-full transition-all uppercase font-bold"
                 />
-                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-accent transition-colors" />
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-accent transition-colors" />
               </div>
               <div className="flex items-center justify-between md:justify-start gap-6 w-full md:w-auto">
                 <div className="flex items-center gap-5">
-                  <div className="relative cursor-pointer hover:text-white transition-colors text-white/30">
-                    <Bell size={22} />
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-accent rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                  <div className="relative cursor-pointer hover:text-brand-accent transition-colors text-white/30">
+                    <Bell size={20} />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-accent rounded-full shadow-[0_0_10px_#45F882]" />
                   </div>
-                  <ShoppingCart size={22} className="text-white/30 cursor-pointer hover:text-white transition-colors" />
+                  <ShoppingCart size={20} className="text-white/30 cursor-pointer hover:text-brand-accent transition-colors" />
                 </div>
-                <div className="w-11 h-11 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center cursor-pointer hover:bg-white/[0.06] transition-all shadow-lg">
-                  <User size={22} className="text-white/60" />
+                <div className="w-10 h-10 rounded-lg bg-brand-surface border border-white/10 flex items-center justify-center cursor-pointer hover:border-brand-accent transition-all shadow-lg">
+                  <User size={20} className="text-white/60" />
                 </div>
               </div>
             </div>
@@ -408,10 +411,9 @@ export default function App() {
             {/* Left Column: Editor */}
             <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
               {/* Project Info Card */}
-              <section className="glass-card p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-6 md:gap-0">
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <section className="glass-card p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-6 md:gap-0 border-l-4 border-l-brand-accent">
                 <div className="relative z-10 flex-1 w-full flex items-center gap-6">
-                  <div className="p-4 rounded-[1.5rem] bg-brand-accent/10 text-brand-accent shadow-inner border border-brand-accent/10">
+                  <div className="p-4 rounded-lg bg-brand-accent/10 text-brand-accent border border-brand-accent/20">
                     <FileText size={32} strokeWidth={1.5} />
                   </div>
                   <div className="flex-1">
@@ -420,22 +422,14 @@ export default function App() {
                         type="text" 
                         value={projectName}
                         onChange={e => setProjectName(e.target.value)}
-                        placeholder="NOMBRE DEL PROYECTO"
-                        className="bg-transparent border-none text-2xl md:text-4xl font-display font-black placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-gradient selection:bg-brand-accent/40"
+                        placeholder="PROJECT NAME"
+                        className="bg-transparent border-none text-2xl md:text-5xl font-display font-black placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-white selection:bg-brand-accent/40"
                       />
-                      {projectName && (
-                        <button 
-                          onClick={() => setProjectName('')}
-                          className="p-2 hover:bg-white/10 rounded-full text-white/10 hover:text-white transition-all"
-                        >
-                          <X size={18} />
-                        </button>
-                      )}
                     </div>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-white/30 font-bold uppercase tracking-[0.2em]">Gestión de Producción</span>
-                      <span className="w-1 h-1 rounded-full bg-white/10" />
                       <span className="text-xs text-brand-accent font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                      <span className="w-1 h-1 rounded-full bg-white/10" />
+                      <span className="text-xs text-white/30 font-bold uppercase tracking-[0.2em]">Total Area: {totals.totalArea.toFixed(2)} m²</span>
                     </div>
                   </div>
                 </div>
@@ -447,7 +441,7 @@ export default function App() {
                         setProjectName('');
                       }
                     }}
-                    className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-95 group/trash"
+                    className="p-5 rounded-lg bg-brand-secondary border border-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-95 group/trash"
                     title="Limpiar Todo"
                   >
                     <Trash2 size={24} className="group-hover/trash:rotate-12 transition-transform" />
@@ -457,17 +451,17 @@ export default function App() {
                     className="btn-primary flex-1 md:flex-none h-16 px-10 text-lg"
                   >
                     <Save size={22} />
-                    Finalizar
+                    SAVE PROJECT
                   </button>
                 </div>
               </section>
 
               {/* Component Editor & List Container */}
               <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
-                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar max-h-[70vh] lg:max-h-full">
-                  <h3 className="text-sm font-display font-bold flex items-center gap-2 text-brand-accent sticky top-0 bg-brand-bg/80 backdrop-blur-md py-2 z-20 uppercase tracking-wider">
-                    <Calculator size={16} className="text-brand-accent" />
-                    NUEVO COMPONENTE
+                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+                  <h3 className="text-sm font-display font-bold flex items-center gap-2 text-brand-accent sticky top-0 bg-brand-card py-2 z-20 uppercase tracking-widest border-b border-brand-accent/20 mb-4">
+                    <Calculator size={16} />
+                    ADD COMPONENT
                   </h3>
                   
                   <div className="space-y-4">
@@ -690,10 +684,10 @@ export default function App() {
                 </section>
 
                 {/* Components List */}
-                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto">
-                  <h3 className="text-sm font-display font-bold flex items-center gap-2 text-brand-secondary uppercase tracking-wider">
-                    <Layers size={16} className="text-brand-secondary" />
-                    LISTA DE COMPONENTES
+                <section className="glass-card p-4 md:p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+                  <h3 className="text-sm font-display font-bold flex items-center gap-2 text-white/60 uppercase tracking-widest border-b border-white/5 pb-2">
+                    <Layers size={16} />
+                    COMPONENTS LIST
                   </h3>
                   
                   <div className="space-y-4">
@@ -728,27 +722,25 @@ export default function App() {
                             
                             <div className="flex items-start justify-between relative z-10">
                               <div className="flex flex-col gap-2">
-                                <h4 className="text-lg font-display font-bold text-white tracking-tight">{comp.name}</h4>
+                                <h4 className="text-lg font-display font-bold text-brand-accent tracking-tight uppercase italic">{comp.name}</h4>
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.05]">
-                                    <LayoutGrid size={12} className="text-white/20" />
+                                  <div className="flex items-center gap-1.5 bg-brand-secondary px-3 py-1 rounded border border-white/5">
+                                    <LayoutGrid size={12} className="text-brand-accent" />
                                     <span className="text-xs text-white/70 font-mono font-bold">
                                       {comp.width}m × {comp.height}m
                                     </span>
                                   </div>
-                                  <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.05]">
-                                    <Plus size={12} className="text-white/20" />
+                                  <div className="flex items-center gap-1.5 bg-brand-secondary px-3 py-1 rounded border border-white/5">
+                                    <Plus size={12} className="text-brand-accent" />
                                     <span className="text-xs text-white/70 font-mono font-bold">
                                       x{comp.quantity} {comp.substrateType === SubstrateType.ROLL && comp.rollsNeeded ? `(${comp.rollsNeeded.toFixed(2)} rollos)` : ''}
                                     </span>
                                   </div>
-                                  {comp.totalUnitsTarget && (
-                                    <div className="flex items-center gap-1.5 bg-brand-accent/10 px-3 py-1 rounded-full border border-brand-accent/20">
-                                      <span className="text-[11px] text-brand-accent font-black uppercase tracking-widest">
-                                        {comp.totalUnitsTarget} Unidades
-                                      </span>
-                                    </div>
-                                  )}
+                                  <div className="flex items-center gap-1.5 bg-brand-accent/20 px-3 py-1 rounded border border-brand-accent/30">
+                                    <span className="text-[11px] text-brand-accent font-black uppercase tracking-widest">
+                                      {comp.area.toFixed(2)} m²
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-5">
@@ -803,7 +795,7 @@ export default function App() {
               {/* Statistics Card */}
               <section className="glass-card p-6 md:p-8 flex flex-col items-center justify-center gap-6 relative shrink-0 overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent/50 to-transparent" />
-                <div className="absolute top-6 left-6 text-xs font-bold text-white/30 uppercase tracking-[0.3em]">Resumen General</div>
+                <div className="absolute top-6 left-6 text-xs font-bold text-brand-accent uppercase tracking-[0.4em] italic">DASHBOARD</div>
                 
                 <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center">
                   {/* Gauge visualization */}
@@ -812,7 +804,7 @@ export default function App() {
                       cx="50%"
                       cy="50%"
                       r="45%"
-                      className="stroke-white/[0.05] fill-none"
+                      className="stroke-white/5 fill-none"
                       strokeWidth="12"
                     />
                     <motion.circle
@@ -824,23 +816,23 @@ export default function App() {
                       strokeDasharray="283"
                       initial={{ strokeDashoffset: 283 }}
                       animate={{ strokeDashoffset: 283 - (Math.min(100, (totals.totalInkWithWaste / 500) * 100) / 100) * 283 }}
-                      strokeLinecap="round"
+                      strokeLinecap="butt"
                     />
                   </svg>
                   <div className="absolute flex flex-col items-center">
-                    <span className="text-xs md:text-sm text-white/40 font-bold uppercase tracking-widest">Total ml</span>
-                    <span className="text-3xl md:text-5xl font-black font-display tracking-tighter text-gradient">{totals.totalInkWithWaste.toFixed(1)}</span>
+                    <span className="text-xs md:text-sm text-white/40 font-bold uppercase tracking-widest">Ink Total</span>
+                    <span className="text-3xl md:text-6xl font-black font-display tracking-tighter text-brand-accent">{totals.totalInkWithWaste.toFixed(1)}</span>
                     <div className="flex items-center gap-1 mt-1">
                       <Droplets size={12} className="text-brand-accent" />
-                      <span className="text-[10px] md:text-xs text-white/50 font-bold uppercase">Con Desperdicio</span>
+                      <span className="text-[10px] md:text-xs text-brand-accent font-bold uppercase">ML + WASTE</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 w-full gap-3">
-                  <StatMini label="Área Total" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
-                  <StatMini label="Tinta Neta" value={`${totals.totalInkMl.toFixed(1)}`} unit="ml" color="bg-brand-secondary" />
-                  <StatMini label="Rendimiento" value={`${(totals.totalInkMl / (totals.totalArea || 1)).toFixed(1)}`} unit="ml/m²" color="bg-emerald-500" />
+                  <StatMini label="PROJECT AREA" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
+                  <StatMini label="NET INK" value={`${totals.totalInkMl.toFixed(1)}`} unit="ml" color="bg-brand-secondary" />
+                  <StatMini label="YIELD" value={`${(totals.totalInkMl / (totals.totalArea || 1)).toFixed(1)}`} unit="ml/m²" color="bg-brand-secondary" />
                 </div>
 
                 {/* Per Color Breakdown */}
@@ -948,21 +940,23 @@ export default function App() {
                           <FileText size={20} />
                         </div>
                         <div className="flex-1 min-w-0 relative z-10">
-                          <h4 className="text-sm font-bold truncate uppercase tracking-tight text-white/90">{p.name}</h4>
+                          <h4 className="text-sm font-bold truncate uppercase tracking-tight text-brand-accent italic">{p.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">{p.date}</span>
                             <span className="w-1 h-1 rounded-full bg-white/10" />
-                            <span className="text-[10px] text-brand-accent/80 font-black uppercase tracking-wider">{p.components.length} ítems</span>
+                            <span className="text-[10px] text-white/60 font-black uppercase tracking-wider">{p.totalArea.toFixed(2)} m²</span>
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0 relative z-10">
-                          <span className="text-sm font-black font-mono text-white/90">{p.totalInkMl.toFixed(1)}ml</span>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
-                            className="p-1.5 rounded-lg bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90"
-                          >
-                            <Trash2 size={12} />
-                          </button>
+                          <span className="text-sm font-black font-mono text-brand-accent">{p.totalInkMl.toFixed(1)}ml</span>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
+                              className="p-1.5 rounded-lg bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
                     ))
@@ -1007,16 +1001,16 @@ export default function App() {
 function SidebarIcon({ icon, active = false }: { icon: React.ReactNode, active?: boolean }) {
   return (
     <motion.div 
-      whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+      whileHover={{ scale: 1.1, backgroundColor: "rgba(69, 248, 130, 0.1)" }}
       whileTap={{ scale: 0.95 }}
-      className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all relative ${
-        active ? 'bg-brand-accent text-white shadow-lg shadow-brand-accent/40' : 'text-white/30 hover:text-white'
+      className={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center cursor-pointer transition-all relative ${
+        active ? 'bg-brand-accent text-black shadow-[0_0_15px_#45F882]' : 'text-white/30 hover:text-brand-accent'
       }`}
     >
       {active && (
         <motion.div 
           layoutId="active-pill"
-          className="absolute -left-1 md:-left-2 w-1 h-6 md:h-8 bg-brand-accent rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+          className="absolute -left-1 md:-left-2 w-1 h-6 md:h-8 bg-brand-accent rounded-full shadow-[0_0_15px_#45F882]"
         />
       )}
       {icon}
@@ -1026,13 +1020,13 @@ function SidebarIcon({ icon, active = false }: { icon: React.ReactNode, active?:
 
 function StatMini({ label, value, unit, color }: { label: string, value: string, unit: string, color: string }) {
   return (
-    <div className="flex flex-col items-center gap-2 p-3 bg-white/[0.03] rounded-2xl border border-white/[0.05] hover:bg-white/[0.06] transition-colors">
-      <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white shadow-lg shadow-black/20 mb-1`}>
+    <div className="flex flex-col items-center gap-2 p-3 bg-brand-surface rounded-lg border border-white/5 hover:border-brand-accent/30 transition-colors">
+      <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center text-black shadow-lg mb-1`}>
         <span className="text-xs font-black uppercase tracking-tighter">{unit}</span>
       </div>
       <div className="flex flex-col items-center">
-        <span className="text-sm font-black font-mono tracking-tight">{value}</span>
-        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest text-center">{label}</span>
+        <span className="text-sm font-black font-mono tracking-tight text-white">{value}</span>
+        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest text-center leading-tight">{label}</span>
       </div>
     </div>
   );
@@ -1043,7 +1037,6 @@ function SocialIcon({ children, href, delay }: { children: React.ReactNode, href
     <motion.a
       animate={{
         y: [0, -8, 0],
-        x: [0, 3, 0],
       }}
       transition={{
         duration: 4,
@@ -1056,7 +1049,7 @@ function SocialIcon({ children, href, delay }: { children: React.ReactNode, href
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="w-10 h-10 md:w-14 md:h-14 soap-bubble rounded-full flex items-center justify-center text-white shadow-xl cursor-pointer"
+      className="w-10 h-10 md:w-14 md:h-14 bg-brand-card border border-brand-accent/20 rounded-lg flex items-center justify-center text-white shadow-xl cursor-pointer hover:border-brand-accent transition-colors"
     >
       {children}
     </motion.a>
