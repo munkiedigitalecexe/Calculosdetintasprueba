@@ -351,7 +351,7 @@ export default function App() {
         {/* Sidebar */}
         <aside className="w-full md:w-20 glass-card flex flex-row md:flex-col items-center py-4 md:py-8 px-4 md:px-0 gap-4 md:gap-8 shrink-0">
           <div 
-            className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl overflow-hidden bg-white p-1 cursor-pointer hover:scale-105 transition-transform"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden bg-white p-1 cursor-pointer hover:scale-105 transition-transform shadow-lg border border-white/10"
             onClick={() => window.location.href = '/'}
             title="Ir al Dashboard"
           >
@@ -376,7 +376,7 @@ export default function App() {
           <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-2 gap-4 md:gap-0 shrink-0">
             <div className="flex flex-col">
               <h2 className="text-2xl md:text-3xl font-display font-black text-gradient tracking-tight">¡Buen día, MUNKIE!</h2>
-              <p className="text-[10px] md:text-xs text-white/20 font-bold uppercase tracking-[0.3em] mt-1">MNK Est INK • Gestión de Producción</p>
+              <p className="text-xs md:text-sm text-white/30 font-bold uppercase tracking-[0.3em] mt-1">MNK Est INK • Gestión de Producción</p>
             </div>
             
             <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
@@ -433,9 +433,9 @@ export default function App() {
                       )}
                     </div>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-[10px] md:text-xs text-white/20 font-bold uppercase tracking-[0.2em]">Gestión de Producción</span>
+                      <span className="text-xs text-white/30 font-bold uppercase tracking-[0.2em]">Gestión de Producción</span>
                       <span className="w-1 h-1 rounded-full bg-white/10" />
-                      <span className="text-[10px] md:text-xs text-brand-accent font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                      <span className="text-xs text-brand-accent font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                     </div>
                   </div>
                 </div>
@@ -506,8 +506,8 @@ export default function App() {
                           <Settings size={14} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-bold text-white/60 uppercase tracking-wider">Modo Producción</span>
-                          <span className="text-[8px] text-white/20 uppercase">Calcula repeticiones automáticamente</span>
+                          <span className="text-xs font-bold text-white/70 uppercase tracking-wider">Modo Producción</span>
+                          <span className="text-[10px] text-white/30 uppercase font-medium">Calcula repeticiones automáticamente</span>
                         </div>
                       </div>
                       <button 
@@ -525,19 +525,19 @@ export default function App() {
                         className="grid grid-cols-2 gap-3 bg-brand-accent/[0.03] p-4 rounded-2xl border border-brand-accent/10"
                       >
                         <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold text-brand-accent/60 uppercase ml-1 tracking-widest">Unid. por Tira</label>
+                          <label className="text-[11px] font-bold text-brand-accent/70 uppercase ml-1 tracking-widest">Unid. por Tira</label>
                           <input 
                             type="number" 
-                            className="input-field-dark border-brand-accent/10 bg-brand-accent/[0.02]"
+                            className="input-field-dark border-brand-accent/20 bg-brand-accent/[0.04]"
                             value={newComp.unitsPerStrip}
                             onChange={e => setNewComp(prev => ({ ...prev, unitsPerStrip: e.target.value }))}
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-[9px] font-bold text-brand-accent/60 uppercase ml-1 tracking-widest">Total Unidades</label>
+                          <label className="text-[11px] font-bold text-brand-accent/70 uppercase ml-1 tracking-widest">Total Unidades</label>
                           <input 
                             type="number" 
-                            className="input-field-dark border-brand-accent/10 bg-brand-accent/[0.02]"
+                            className="input-field-dark border-brand-accent/20 bg-brand-accent/[0.04]"
                             value={newComp.totalUnitsTarget}
                             onChange={e => setNewComp(prev => ({ ...prev, totalUnitsTarget: e.target.value }))}
                           />
@@ -547,9 +547,9 @@ export default function App() {
 
                     {newComp.substrateType === SubstrateType.ROLL && (
                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-white/20 uppercase ml-1 tracking-widest">Largo del Rollo (m)</label>
+                        <label className="text-[11px] font-bold text-white/40 uppercase ml-1 tracking-widest">Largo del Rollo (m)</label>
                         <div className="relative">
-                          <Scroll size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
+                          <Scroll size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                           <input 
                             type="number" 
                             step="any"
@@ -563,11 +563,11 @@ export default function App() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-white/20 uppercase ml-1 tracking-widest">Ancho (m)</label>
-                        <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/30 transition-colors">
+                        <label className="text-[11px] font-bold text-white/40 uppercase ml-1 tracking-widest">Ancho (m)</label>
+                        <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/40 transition-colors">
                           <button 
                             onClick={() => setNewComp(prev => ({ ...prev, width: String(Math.max(0, (parseFloat(prev.width) || 0) - 0.1)) }))}
-                            className="p-3 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
+                            className="p-3 hover:bg-white/5 transition-colors text-white/30 hover:text-white"
                           >
                             <Minus size={14} />
                           </button>
@@ -580,18 +580,18 @@ export default function App() {
                           />
                           <button 
                             onClick={() => setNewComp(prev => ({ ...prev, width: String((parseFloat(prev.width) || 0) + 0.1) }))}
-                            className="p-3 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
+                            className="p-3 hover:bg-white/5 transition-colors text-white/30 hover:text-white"
                           >
                             <Plus size={14} />
                           </button>
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-white/20 uppercase ml-1 tracking-widest">Alto (m)</label>
-                        <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/30 transition-colors">
+                        <label className="text-[11px] font-bold text-white/40 uppercase ml-1 tracking-widest">Alto (m)</label>
+                        <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/40 transition-colors">
                           <button 
                             onClick={() => setNewComp(prev => ({ ...prev, height: String(Math.max(0, (parseFloat(prev.height) || 0) - 0.1)) }))}
-                            className="p-3 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
+                            className="p-3 hover:bg-white/5 transition-colors text-white/30 hover:text-white"
                           >
                             <Minus size={14} />
                           </button>
@@ -604,7 +604,7 @@ export default function App() {
                           />
                           <button 
                             onClick={() => setNewComp(prev => ({ ...prev, height: String((parseFloat(prev.height) || 0) + 0.1) }))}
-                            className="p-3 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
+                            className="p-3 hover:bg-white/5 transition-colors text-white/30 hover:text-white"
                           >
                             <Plus size={14} />
                           </button>
@@ -613,11 +613,11 @@ export default function App() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-white/20 uppercase ml-2 tracking-[0.2em]">Cantidad de Piezas</label>
-                      <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/30 transition-colors">
+                      <label className="text-xs font-bold text-white/40 uppercase ml-2 tracking-[0.2em]">Cantidad de Piezas</label>
+                      <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/40 transition-colors">
                         <button 
                           onClick={() => setNewComp(prev => ({ ...prev, quantity: String(Math.max(1, (parseInt(prev.quantity) || 0) - 1)) }))}
-                          className="p-4 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
+                          className="p-4 hover:bg-white/5 transition-colors text-white/30 hover:text-white"
                         >
                           <Minus size={16} />
                         </button>
@@ -629,7 +629,7 @@ export default function App() {
                         />
                         <button 
                           onClick={() => setNewComp(prev => ({ ...prev, quantity: String((parseInt(prev.quantity) || 0) + 1) }))}
-                          className="p-4 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
+                          className="p-4 hover:bg-white/5 transition-colors text-white/30 hover:text-white"
                         >
                           <Plus size={16} />
                         </button>
@@ -638,11 +638,11 @@ export default function App() {
 
                     <div className="bg-white/[0.02] border border-white/[0.05] rounded-[2rem] p-6 space-y-5">
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] flex items-center gap-2">
+                        <p className="text-xs font-bold text-white/40 uppercase tracking-[0.3em] flex items-center gap-2">
                           <Droplets size={12} className="text-brand-accent" />
                           Consumo RIP (ml)
                         </p>
-                        <span className="text-[9px] font-bold text-brand-accent/40 uppercase tracking-widest">Valores por pieza</span>
+                        <span className="text-[10px] font-bold text-brand-accent/60 uppercase tracking-widest">Valores por pieza</span>
                       </div>
                       <div className="grid grid-cols-1 gap-4">
                         {newComp.inks.map(ink => (
@@ -655,14 +655,14 @@ export default function App() {
                                 ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
                                 'bg-white'
                               }`} />
-                              <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider group-hover/ink:text-white/70 transition-colors">{ink.name}</span>
+                              <span className="text-xs font-bold text-white/50 uppercase tracking-wider group-hover/ink:text-white/80 transition-colors">{ink.name}</span>
                             </div>
                             <div className="flex-1 relative">
                               <input 
                                 type="number" 
                                 step="any"
                                 placeholder="0.00"
-                                className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent/50 transition-all text-white placeholder:text-white/5"
+                                className="w-full bg-white/[0.03] border border-white/[0.1] rounded-xl px-4 py-2.5 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-brand-accent/50 focus:border-brand-accent/70 transition-all text-white placeholder:text-white/5"
                                 value={ink.ml}
                                 onChange={e => {
                                   const val = e.target.value;
@@ -672,7 +672,7 @@ export default function App() {
                                   }));
                                 }}
                               />
-                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/10 group-focus-within/ink:text-brand-accent/40 transition-colors">ML</span>
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-white/10 group-focus-within/ink:text-brand-accent/50 transition-colors">ML</span>
                             </div>
                           </div>
                         ))}
@@ -711,8 +711,8 @@ export default function App() {
                             </motion.div>
                           </div>
                           <div className="flex flex-col items-center gap-1">
-                            <p className="text-xs font-display font-bold uppercase tracking-[0.3em] text-white/10">Lista Vacía</p>
-                            <p className="text-[10px] text-white/5 uppercase font-medium">Añade componentes para comenzar</p>
+                            <p className="text-sm font-display font-bold uppercase tracking-[0.3em] text-white/20">Lista Vacía</p>
+                            <p className="text-xs text-white/10 uppercase font-medium">Añade componentes para comenzar</p>
                           </div>
                         </div>
                       ) : (
@@ -732,19 +732,19 @@ export default function App() {
                                 <div className="flex flex-wrap items-center gap-2">
                                   <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.05]">
                                     <LayoutGrid size={12} className="text-white/20" />
-                                    <span className="text-[10px] text-white/60 font-mono font-bold">
+                                    <span className="text-xs text-white/70 font-mono font-bold">
                                       {comp.width}m × {comp.height}m
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.05]">
                                     <Plus size={12} className="text-white/20" />
-                                    <span className="text-[10px] text-white/60 font-mono font-bold">
+                                    <span className="text-xs text-white/70 font-mono font-bold">
                                       x{comp.quantity} {comp.substrateType === SubstrateType.ROLL && comp.rollsNeeded ? `(${comp.rollsNeeded.toFixed(2)} rollos)` : ''}
                                     </span>
                                   </div>
                                   {comp.totalUnitsTarget && (
                                     <div className="flex items-center gap-1.5 bg-brand-accent/10 px-3 py-1 rounded-full border border-brand-accent/20">
-                                      <span className="text-[9px] text-brand-accent font-black uppercase tracking-widest">
+                                      <span className="text-[11px] text-brand-accent font-black uppercase tracking-widest">
                                         {comp.totalUnitsTarget} Unidades
                                       </span>
                                     </div>
@@ -752,12 +752,12 @@ export default function App() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-5">
-                                <div className="flex flex-col items-end">
+                                  <div className="flex flex-col items-end">
                                   <div className="flex items-center gap-2">
                                     <Droplets size={14} className="text-brand-accent" />
                                     <span className="text-xl font-display font-black text-white tracking-tighter">{comp.inkMl.toFixed(1)}<span className="text-xs text-white/30 ml-0.5">ml</span></span>
                                   </div>
-                                  <span className="text-[10px] text-white/20 font-bold uppercase tracking-widest mt-0.5">{(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²</span>
+                                  <span className="text-xs text-white/30 font-bold uppercase tracking-widest mt-0.5">{(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²</span>
                                 </div>
                                 <button 
                                   onClick={() => removeComponent(comp.id)}
@@ -780,11 +780,11 @@ export default function App() {
                                       ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
                                       'bg-white'
                                     }`} />
-                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-widest truncate">{ink.name}</span>
+                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest truncate">{ink.name}</span>
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="text-xs font-mono font-bold text-white/80">{(ink.ml * comp.quantity).toFixed(1)}ml</span>
-                                    <span className="text-[8px] font-mono text-white/20 font-bold uppercase mt-0.5">{(ink.ml / (comp.area / comp.quantity || 1)).toFixed(2)} ml/m²</span>
+                                    <span className="text-xs font-mono font-bold text-white/90">{(ink.ml * comp.quantity).toFixed(1)}ml</span>
+                                    <span className="text-[10px] font-mono text-white/30 font-bold uppercase mt-0.5">{(ink.ml / (comp.area / comp.quantity || 1)).toFixed(2)} ml/m²</span>
                                   </div>
                                 </div>
                               ))}
@@ -803,7 +803,7 @@ export default function App() {
               {/* Statistics Card */}
               <section className="glass-card p-6 md:p-8 flex flex-col items-center justify-center gap-6 relative shrink-0 overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent/50 to-transparent" />
-                <div className="absolute top-6 left-6 text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">Resumen General</div>
+                <div className="absolute top-6 left-6 text-xs font-bold text-white/30 uppercase tracking-[0.3em]">Resumen General</div>
                 
                 <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center">
                   {/* Gauge visualization */}
@@ -812,7 +812,7 @@ export default function App() {
                       cx="50%"
                       cy="50%"
                       r="45%"
-                      className="stroke-white/[0.03] fill-none"
+                      className="stroke-white/[0.05] fill-none"
                       strokeWidth="12"
                     />
                     <motion.circle
@@ -828,11 +828,11 @@ export default function App() {
                     />
                   </svg>
                   <div className="absolute flex flex-col items-center">
-                    <span className="text-[10px] md:text-xs text-white/30 font-bold uppercase tracking-widest">Total ml</span>
+                    <span className="text-xs md:text-sm text-white/40 font-bold uppercase tracking-widest">Total ml</span>
                     <span className="text-3xl md:text-5xl font-black font-display tracking-tighter text-gradient">{totals.totalInkWithWaste.toFixed(1)}</span>
                     <div className="flex items-center gap-1 mt-1">
-                      <Droplets size={10} className="text-brand-accent" />
-                      <span className="text-[8px] md:text-[10px] text-white/40 font-bold uppercase">Con Desperdicio</span>
+                      <Droplets size={12} className="text-brand-accent" />
+                      <span className="text-[10px] md:text-xs text-white/50 font-bold uppercase">Con Desperdicio</span>
                     </div>
                   </div>
                 </div>
@@ -845,8 +845,8 @@ export default function App() {
 
                 {/* Per Color Breakdown */}
                 <div className="w-full bg-white/[0.02] rounded-3xl p-5 border border-white/[0.05]">
-                  <div className="text-[10px] font-bold text-white/20 uppercase mb-4 tracking-[0.2em] flex items-center gap-2">
-                    <Droplets size={12} className="text-brand-accent" />
+                  <div className="text-xs font-bold text-white/30 uppercase mb-4 tracking-[0.2em] flex items-center gap-2">
+                    <Droplets size={14} className="text-brand-accent" />
                     Consumo por Color
                   </div>
                   <div className="space-y-4">
@@ -861,14 +861,14 @@ export default function App() {
                               ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
                               'bg-white shadow-white/20'
                             }`} />
-                            <span className="text-[11px] font-bold text-white/70 uppercase tracking-wider">{ink.name}</span>
+                            <span className="text-xs font-bold text-white/80 uppercase tracking-wider">{ink.name}</span>
                           </div>
                           <div className="flex flex-col items-end">
-                            <span className="text-xs font-mono font-bold text-brand-accent">{ink.mlWithWaste.toFixed(2)} ml</span>
-                            <span className="text-[9px] font-mono text-white/20">{(ink.mlWithWaste / (totals.totalArea || 1)).toFixed(2)} ml/m²</span>
+                            <span className="text-sm font-mono font-bold text-brand-accent">{ink.mlWithWaste.toFixed(2)} ml</span>
+                            <span className="text-[10px] font-mono text-white/30 font-bold">{(ink.mlWithWaste / (totals.totalArea || 1)).toFixed(2)} ml/m²</span>
                           </div>
                         </div>
-                        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(100, (ink.mlWithWaste / (totals.totalInkWithWaste || 1)) * 100)}%` }}
@@ -876,14 +876,14 @@ export default function App() {
                               ink.id === 'cyan' ? 'bg-cyan-400' : 
                               ink.id === 'magenta' ? 'bg-pink-500' : 
                               ink.id === 'yellow' ? 'bg-yellow-400' : 
-                              ink.id === 'black' ? 'bg-white/40' : 
+                              ink.id === 'black' ? 'bg-white/50' : 
                               'bg-white'
                             }`}
                           />
                         </div>
-                        <div className="flex justify-between items-center mt-1 px-1">
-                          <span className="text-[8px] text-white/20 uppercase font-medium">Equivalente en Litros</span>
-                          <span className="text-[9px] font-mono text-white/40 font-bold">{ink.litersWithWaste.toFixed(4)} L</span>
+                        <div className="flex justify-between items-center mt-1.5 px-1">
+                          <span className="text-[10px] text-white/30 uppercase font-bold tracking-wider">Equivalente en Litros</span>
+                          <span className="text-[11px] font-mono text-white/50 font-black">{ink.litersWithWaste.toFixed(4)} L</span>
                         </div>
                       </div>
                     ))}
@@ -911,11 +911,11 @@ export default function App() {
               {/* History Card */}
               <section className="glass-card flex-1 p-4 md:p-6 flex flex-col gap-4 overflow-y-auto min-h-[300px] md:min-h-0">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-sm font-display font-bold text-white/80 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <History size={16} className="text-white/40" />
+                  <h3 className="text-xs font-display font-bold text-white/90 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <History size={18} className="text-brand-accent/60" />
                     Historial
                   </h3>
-                  <button className="text-[10px] font-bold text-brand-accent hover:text-brand-secondary transition-colors uppercase tracking-widest">Ver Todo</button>
+                  <button className="text-[11px] font-black text-brand-accent hover:text-brand-secondary transition-colors uppercase tracking-widest">Ver Todo</button>
                 </div>
                 
                 <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
@@ -930,8 +930,8 @@ export default function App() {
                         />
                       </div>
                       <div className="flex flex-col items-center gap-1">
-                        <p className="text-xs font-display font-bold uppercase tracking-[0.3em] text-white/10">Sin Historial</p>
-                        <p className="text-[10px] text-white/5 uppercase font-medium text-center">Tus proyectos guardados aparecerán aquí</p>
+                        <p className="text-sm font-display font-bold uppercase tracking-[0.3em] text-white/20">Sin Historial</p>
+                        <p className="text-xs text-white/10 uppercase font-medium text-center">Tus proyectos guardados aparecerán aquí</p>
                       </div>
                     </div>
                   ) : (
@@ -944,19 +944,19 @@ export default function App() {
                         className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-4 flex items-center gap-4 hover:bg-white/[0.06] hover:border-white/[0.1] transition-all cursor-pointer group relative overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <div className="w-12 h-12 rounded-2xl bg-brand-accent/10 flex items-center justify-center text-brand-accent shrink-0 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 rounded-full bg-brand-accent/10 flex items-center justify-center text-brand-accent shrink-0 group-hover:scale-110 transition-transform shadow-inner">
                           <FileText size={20} />
                         </div>
                         <div className="flex-1 min-w-0 relative z-10">
-                          <h4 className="text-xs font-bold truncate uppercase tracking-tight text-white/90">{p.name}</h4>
+                          <h4 className="text-sm font-bold truncate uppercase tracking-tight text-white/90">{p.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] text-white/30 font-medium uppercase">{p.date}</span>
+                            <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">{p.date}</span>
                             <span className="w-1 h-1 rounded-full bg-white/10" />
-                            <span className="text-[9px] text-brand-accent/60 font-bold uppercase">{p.components.length} ítems</span>
+                            <span className="text-[10px] text-brand-accent/80 font-black uppercase tracking-wider">{p.components.length} ítems</span>
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0 relative z-10">
-                          <span className="text-xs font-bold font-mono text-white/80">{p.totalInkMl.toFixed(1)}ml</span>
+                          <span className="text-sm font-black font-mono text-white/90">{p.totalInkMl.toFixed(1)}ml</span>
                           <button 
                             onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
                             className="p-1.5 rounded-lg bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90"
@@ -975,7 +975,7 @@ export default function App() {
       </div>
 
       {/* Credits Footer */}
-      <footer className="text-[8px] md:text-[10px] font-bold text-white/20 uppercase tracking-widest text-center py-2 md:py-4 shrink-0 px-4">
+      <footer className="text-[10px] md:text-xs font-black text-white/30 uppercase tracking-[0.3em] text-center py-2 md:py-4 shrink-0 px-4">
         desarrollado con amor por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">munkiedigitalecuador</a> © 2026
       </footer>
 
@@ -1009,7 +1009,7 @@ function SidebarIcon({ icon, active = false }: { icon: React.ReactNode, active?:
     <motion.div 
       whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
       whileTap={{ scale: 0.95 }}
-      className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center cursor-pointer transition-all relative ${
+      className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer transition-all relative ${
         active ? 'bg-brand-accent text-white shadow-lg shadow-brand-accent/40' : 'text-white/30 hover:text-white'
       }`}
     >
@@ -1028,11 +1028,11 @@ function StatMini({ label, value, unit, color }: { label: string, value: string,
   return (
     <div className="flex flex-col items-center gap-2 p-3 bg-white/[0.03] rounded-2xl border border-white/[0.05] hover:bg-white/[0.06] transition-colors">
       <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white shadow-lg shadow-black/20 mb-1`}>
-        <span className="text-[10px] font-bold uppercase tracking-tighter">{unit}</span>
+        <span className="text-xs font-black uppercase tracking-tighter">{unit}</span>
       </div>
       <div className="flex flex-col items-center">
         <span className="text-sm font-black font-mono tracking-tight">{value}</span>
-        <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest text-center">{label}</span>
+        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest text-center">{label}</span>
       </div>
     </div>
   );
