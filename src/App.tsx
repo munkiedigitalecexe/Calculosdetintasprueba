@@ -814,7 +814,7 @@ export default function App() {
                                     <span className="text-[10px] font-black text-white/40 uppercase tracking-widest truncate">{ink.name}</span>
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="text-xs font-mono font-bold text-white/90">{(ink.ml * comp.quantity).toFixed(1)}ml</span>
+                                    <span className="text-xs font-mono font-bold text-white/90">{(ink.ml * comp.quantity).toFixed(1)}ml / {((ink.ml * comp.quantity) / 1000).toFixed(3)}L</span>
                                     <span className="text-[10px] font-mono text-white/30 font-bold uppercase mt-0.5">{(ink.ml / (comp.area / comp.quantity || 1)).toFixed(2)} ml/m²</span>
                                   </div>
                                 </div>
@@ -894,7 +894,7 @@ export default function App() {
                             <span className="text-xs font-bold text-white/80 uppercase tracking-wider">{ink.name}</span>
                           </div>
                           <div className="flex flex-col items-end">
-                            <span className="text-sm font-mono font-bold text-brand-accent">{ink.mlWithWaste.toFixed(2)} ml</span>
+                            <span className="text-sm font-mono font-bold text-brand-accent">{ink.mlWithWaste.toFixed(2)} ml / {ink.litersWithWaste.toFixed(3)} L</span>
                             <span className="text-[10px] font-mono text-white/30 font-bold">{(ink.mlWithWaste / (totals.totalArea || 1)).toFixed(2)} ml/m²</span>
                           </div>
                         </div>
