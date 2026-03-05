@@ -741,6 +741,12 @@ export default function App() {
                                       {comp.area.toFixed(2)} m²
                                     </span>
                                   </div>
+                                  <div className="flex items-center gap-1.5 bg-brand-secondary px-3 py-1 rounded border border-white/5">
+                                    <Droplets size={12} className="text-brand-accent" />
+                                    <span className="text-[11px] text-white/70 font-bold uppercase tracking-widest">
+                                      {(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-5">
@@ -749,7 +755,6 @@ export default function App() {
                                     <Droplets size={14} className="text-brand-accent" />
                                     <span className="text-xl font-display font-black text-white tracking-tighter">{comp.inkMl.toFixed(1)}<span className="text-xs text-white/30 ml-0.5">ml</span></span>
                                   </div>
-                                  <span className="text-xs text-white/30 font-bold uppercase tracking-widest mt-0.5">{(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²</span>
                                 </div>
                                 <button 
                                   onClick={() => removeComponent(comp.id)}
