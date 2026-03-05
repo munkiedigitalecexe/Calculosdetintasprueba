@@ -38,7 +38,6 @@ const INITIAL_INKS: InkComponent[] = [
   { id: 'magenta', name: 'Magenta', ml: 0 },
   { id: 'yellow', name: 'Yellow', ml: 0 },
   { id: 'black', name: 'Black', ml: 0 },
-  { id: 'white', name: 'White', ml: 0 },
 ];
 
 const LOGO_URL = "https://munkiedigitalecuador.vercel.app/lovable-uploads/d595f062-6436-48e6-a22a-91aa6e4e8169.png";
@@ -62,6 +61,12 @@ export default function App() {
   });
 
   const [productionMode, setProductionMode] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowWelcome(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const units = parseFloat(newComp.unitsPerStrip);
@@ -346,68 +351,99 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen md:h-screen bg-brand-bg text-white overflow-y-auto md:overflow-hidden p-2 md:p-4">
-      <div className="flex flex-col md:flex-row flex-1 gap-2 md:gap-4 overflow-y-auto md:overflow-hidden mb-4">
-        {/* Sidebar */}
-        <aside className="w-full md:w-20 glass-card flex flex-row md:flex-col items-center py-4 md:py-8 px-4 md:px-0 gap-4 md:gap-8 shrink-0">
+    <div className="flex flex-col min-h-screen bg-brand-bg text-white selection:bg-brand-accent/40 selection:text-black font-sans overflow-x-hidden">
+      <AnimatePresence>
+        {showWelcome && (
+          <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none">
+            <motion.div
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              exit={{ scaleX: 0, opacity: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-brand-accent/95 backdrop-blur-2xl text-black px-10 py-4 rounded-full shadow-[0_0_50px_rgba(196,255,14,0.5)] border border-white/20 flex items-center gap-4 pointer-events-auto"
+            >
+              <div className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center p-1.5 shadow-inner">
+                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none opacity-60">Bienvenido a</span>
+                <span className="text-base font-black uppercase tracking-tight leading-none">Munkie Production System</span>
+              </div>
+              <button 
+                onClick={() => setShowWelcome(false)} 
+                className="ml-6 p-1.5 hover:bg-black/10 rounded-full transition-colors active:scale-90"
+              >
+                <X size={16} />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-col md:flex-row flex-1 h-screen overflow-hidden p-2 md:p-4 gap-4">
+        {/* Sidebar - Desktop Only */}
+        <aside className="hidden md:flex w-24 glass-card flex-col items-center py-10 gap-10 shrink-0 z-50">
           <div 
-            className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden bg-white p-1 cursor-pointer hover:scale-105 transition-transform shadow-lg border border-white/10"
+            className="w-12 h-12 rounded-full overflow-hidden bg-white p-1 cursor-pointer hover:scale-105 transition-transform shadow-lg border border-white/10"
             onClick={() => window.location.href = '/'}
             title="Ir al Dashboard"
           >
             <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
           </div>
           
-          <nav className="flex flex-row md:flex-col gap-4 md:gap-6 flex-1 justify-center">
+          <nav className="flex flex-col gap-6 flex-1 justify-center">
             <SidebarIcon icon={<Home size={20} />} active />
             <SidebarIcon icon={<Package size={20} />} />
             <SidebarIcon icon={<PieChart size={20} />} />
             <SidebarIcon icon={<Settings size={20} />} />
           </nav>
 
-          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_#45F882]" onClick={() => { setProjectName(''); setComponents([]); }}>
+          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_rgba(196,255,14,0.4)]" onClick={() => { setProjectName(''); setComponents([]); }}>
             <Plus size={20} className="text-black" />
           </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 flex flex-col gap-4 overflow-y-auto md:overflow-hidden">
-          {/* Top Header */}
-          <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-4 gap-4 md:gap-0 shrink-0 border-b border-white/5 bg-brand-card/50 backdrop-blur-md">
-            <div className="flex flex-col">
-              <h2 className="text-2xl md:text-4xl font-display font-bold text-brand-accent tracking-tighter uppercase">MUNKIE PRODUCTION</h2>
-              <p className="text-xs text-white/40 font-bold uppercase tracking-[0.4em] mt-1 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
-                System Active • Ink Management v2.0
-              </p>
-            </div>
-            
-            <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
-              <div className="relative w-full md:w-72 group">
-                <input 
-                  type="text" 
-                  placeholder="SEARCH PROJECTS..." 
-                  className="bg-brand-surface border border-white/10 rounded-lg px-12 py-3 text-xs focus:outline-none focus:ring-1 focus:ring-brand-accent w-full transition-all uppercase font-bold"
-                />
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-accent transition-colors" />
+        <main className="flex-1 flex flex-col gap-6 p-2 md:p-4 overflow-y-auto custom-scrollbar min-h-0 relative">
+          {/* Gaming Top Bar */}
+          <div className="flex items-center justify-between px-6 py-4 glass-card shrink-0 relative z-50">
+            <div className="flex items-center gap-6">
+              <div className="p-2.5 rounded-xl bg-brand-surface border border-white/5 hover:text-brand-accent transition-colors cursor-pointer group">
+                <Settings size={20} className="text-white/40 group-hover:text-brand-accent transition-colors" />
               </div>
-              <div className="flex items-center justify-between md:justify-start gap-6 w-full md:w-auto">
-                <div className="flex items-center gap-5">
-                  <div className="relative cursor-pointer hover:text-brand-accent transition-colors text-white/30">
-                    <Bell size={20} />
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-accent rounded-full shadow-[0_0_10px_#45F882]" />
-                  </div>
-                  <ShoppingCart size={20} className="text-white/30 cursor-pointer hover:text-brand-accent transition-colors" />
+              <div className="flex items-center gap-3 bg-brand-surface/50 px-5 py-2.5 rounded-2xl border border-white/5 shadow-inner group cursor-pointer hover:border-brand-accent/30 transition-all">
+                <div className="w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-[11px] shadow-[0_0_15px_rgba(250,204,21,0.5)]">
+                  $
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-brand-surface border border-white/10 flex items-center justify-center cursor-pointer hover:border-brand-accent transition-all shadow-lg">
-                  <User size={20} className="text-white/60" />
+                <span className="text-base font-black tracking-tight text-white/90">563</span>
+              </div>
+            </div>
+
+            <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
+              <div className="w-14 h-14 rounded-full border-2 border-brand-accent p-0.5 shadow-[0_0_25px_rgba(196,255,14,0.4)] bg-brand-bg relative group cursor-pointer">
+                <img src={LOGO_URL} alt="User" className="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-brand-accent text-black text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg">
+                  online
                 </div>
               </div>
             </div>
-          </header>
+
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3 bg-brand-surface/50 px-5 py-2.5 rounded-2xl border border-white/5 shadow-inner group cursor-pointer hover:border-brand-accent/30 transition-all">
+                <span className="text-base font-black tracking-tight text-white/90">1.205</span>
+                <div className="w-7 h-7 rounded-full bg-brand-accent flex items-center justify-center text-black shadow-[0_0_15px_rgba(196,255,14,0.5)]">
+                  <Droplets size={14} />
+                </div>
+              </div>
+              <div className="relative p-2.5 rounded-xl bg-brand-surface border border-white/5 hover:text-brand-accent transition-colors cursor-pointer group">
+                <Bell size={20} className="text-white/40 group-hover:text-brand-accent transition-colors" />
+                <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.6)] border-2 border-brand-card" />
+              </div>
+            </div>
+          </div>
 
           {/* Dashboard Grid */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 overflow-hidden">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Left Column: Editor */}
             <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
               {/* Project Info Card */}
@@ -642,13 +678,12 @@ export default function App() {
                         {newComp.inks.map(ink => (
                           <div key={ink.id} className="flex items-center gap-4 group/ink">
                             <div className="flex items-center gap-3 w-24 shrink-0">
-                              <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${
-                                ink.id === 'cyan' ? 'bg-cyan-400' : 
-                                ink.id === 'magenta' ? 'bg-pink-500' : 
-                                ink.id === 'yellow' ? 'bg-yellow-400' : 
-                                ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
-                                'bg-white'
-                              }`} />
+                                  <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${
+                                    ink.id === 'cyan' ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.4)]' : 
+                                    ink.id === 'magenta' ? 'bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.4)]' : 
+                                    ink.id === 'yellow' ? 'bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.4)]' : 
+                                    'bg-zinc-900 border border-white/20 shadow-[0_0_10px_rgba(0,0,0,0.4)]'
+                                  }`} />
                               <span className="text-xs font-bold text-white/50 uppercase tracking-wider group-hover/ink:text-white/80 transition-colors">{ink.name}</span>
                             </div>
                             <div className="flex-1 relative">
@@ -770,13 +805,12 @@ export default function App() {
                               {comp.inks.map(ink => (
                                 <div key={ink.id} className="flex flex-col gap-2 bg-white/[0.02] p-3 rounded-2xl border border-white/[0.03] hover:bg-white/[0.04] transition-colors">
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full shadow-sm ${
-                                      ink.id === 'cyan' ? 'bg-cyan-400' : 
-                                      ink.id === 'magenta' ? 'bg-pink-500' : 
-                                      ink.id === 'yellow' ? 'bg-yellow-400' : 
-                                      ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
-                                      'bg-white'
-                                    }`} />
+                            <div className={`w-2 h-2 rounded-full shadow-sm ${
+                              ink.id === 'cyan' ? 'bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.4)]' : 
+                              ink.id === 'magenta' ? 'bg-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.4)]' : 
+                              ink.id === 'yellow' ? 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]' : 
+                              'bg-zinc-900 border border-white/20 shadow-[0_0_8px_rgba(0,0,0,0.4)]'
+                            }`} />
                                     <span className="text-[10px] font-black text-white/40 uppercase tracking-widest truncate">{ink.name}</span>
                                   </div>
                                   <div className="flex flex-col">
@@ -835,9 +869,9 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-3 w-full gap-3">
-                  <StatMini label="PROJECT AREA" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
-                  <StatMini label="NET INK" value={`${totals.totalInkMl.toFixed(1)}`} unit="ml" color="bg-brand-secondary" />
-                  <StatMini label="YIELD" value={`${(totals.totalInkMl / (totals.totalArea || 1)).toFixed(1)}`} unit="ml/m²" color="bg-brand-secondary" />
+                  <StatMini label="ÁREA TOTAL" value={`${totals.totalArea.toFixed(2)}`} unit="m²" color="bg-brand-accent" />
+                  <StatMini label="TINTA NETA" value={`${totals.totalInkMl.toFixed(1)}`} unit="ml" color="bg-brand-secondary" />
+                  <StatMini label="RENDIMIENTO" value={`${(totals.totalInkMl / (totals.totalArea || 1)).toFixed(1)}`} unit="ml/m²" color="bg-brand-secondary" />
                 </div>
 
                 {/* Per Color Breakdown */}
@@ -852,11 +886,10 @@ export default function App() {
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-center gap-2.5">
                             <div className={`w-3 h-3 rounded-full shadow-lg ${
-                              ink.id === 'cyan' ? 'bg-cyan-400 shadow-cyan-400/20' : 
-                              ink.id === 'magenta' ? 'bg-pink-500 shadow-pink-500/20' : 
-                              ink.id === 'yellow' ? 'bg-yellow-400 shadow-yellow-400/20' : 
-                              ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
-                              'bg-white shadow-white/20'
+                              ink.id === 'cyan' ? 'bg-cyan-400 shadow-cyan-400/40' : 
+                              ink.id === 'magenta' ? 'bg-pink-500 shadow-pink-500/40' : 
+                              ink.id === 'yellow' ? 'bg-yellow-400 shadow-yellow-400/40' : 
+                              'bg-zinc-900 border border-white/20 shadow-black/40'
                             }`} />
                             <span className="text-xs font-bold text-white/80 uppercase tracking-wider">{ink.name}</span>
                           </div>
@@ -870,11 +903,10 @@ export default function App() {
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(100, (ink.mlWithWaste / (totals.totalInkWithWaste || 1)) * 100)}%` }}
                             className={`h-full rounded-full ${
-                              ink.id === 'cyan' ? 'bg-cyan-400' : 
-                              ink.id === 'magenta' ? 'bg-pink-500' : 
-                              ink.id === 'yellow' ? 'bg-yellow-400' : 
-                              ink.id === 'black' ? 'bg-white/50' : 
-                              'bg-white'
+                              ink.id === 'cyan' ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.4)]' : 
+                              ink.id === 'magenta' ? 'bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.4)]' : 
+                              ink.id === 'yellow' ? 'bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.4)]' : 
+                              'bg-white/50 shadow-[0_0_10px_rgba(255,255,255,0.2)]'
                             }`}
                           />
                         </div>
@@ -978,8 +1010,8 @@ export default function App() {
         desarrollado con amor por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">munkiedigitalecuador</a> © 2026
       </footer>
 
-      {/* Social Bubbles */}
-      <div className="fixed right-2 md:right-8 top-1/2 -translate-y-1/2 flex flex-col gap-4 md:gap-6 z-50">
+      {/* Social Bubbles - Hidden on Mobile */}
+      <div className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 flex-col gap-6 z-50">
         <SocialIcon 
           href="https://instagram.com/bryant_ldu" 
           delay={0}
@@ -999,6 +1031,19 @@ export default function App() {
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         </SocialIcon>
       </div>
+
+      {/* Mobile Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6">
+        <div className="glass-card flex items-center justify-around py-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border border-white/10">
+          <SidebarIcon icon={<Home size={20} />} active />
+          <SidebarIcon icon={<Package size={20} />} />
+          <div className="w-12 h-12 rounded-full bg-brand-accent flex items-center justify-center -mt-10 shadow-[0_0_20px_rgba(196,255,14,0.5)] border-4 border-brand-bg cursor-pointer active:scale-90 transition-transform" onClick={() => { setProjectName(''); setComponents([]); }}>
+            <Plus size={24} className="text-black" />
+          </div>
+          <SidebarIcon icon={<PieChart size={20} />} />
+          <SidebarIcon icon={<Settings size={20} />} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -1006,16 +1051,16 @@ export default function App() {
 function SidebarIcon({ icon, active = false }: { icon: React.ReactNode, active?: boolean }) {
   return (
     <motion.div 
-      whileHover={{ scale: 1.1, backgroundColor: "rgba(69, 248, 130, 0.1)" }}
+      whileHover={{ scale: 1.1, backgroundColor: "rgba(196, 255, 14, 0.1)" }}
       whileTap={{ scale: 0.95 }}
       className={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center cursor-pointer transition-all relative ${
-        active ? 'bg-brand-accent text-black shadow-[0_0_15px_#45F882]' : 'text-white/30 hover:text-brand-accent'
+        active ? 'bg-brand-accent text-black shadow-[0_0_15px_rgba(196,255,14,0.4)]' : 'text-white/30 hover:text-brand-accent'
       }`}
     >
       {active && (
         <motion.div 
           layoutId="active-pill"
-          className="absolute -left-1 md:-left-2 w-1 h-6 md:h-8 bg-brand-accent rounded-full shadow-[0_0_15px_#45F882]"
+          className="absolute -left-1 md:-left-2 w-1 h-6 md:h-8 bg-brand-accent rounded-full shadow-[0_0_15px_rgba(196,255,14,0.4)]"
         />
       )}
       {icon}
