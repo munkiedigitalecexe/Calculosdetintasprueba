@@ -373,28 +373,31 @@ export default function App() {
         {/* Main Content */}
         <main className="flex-1 flex flex-col gap-4 overflow-y-auto md:overflow-hidden">
           {/* Top Header */}
-          <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-2 md:px-4 gap-4 md:gap-0">
+          <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-2 gap-4 md:gap-0 shrink-0">
             <div className="flex flex-col">
-              <h2 className="text-xl md:text-2xl font-display font-extrabold text-gradient tracking-tight">¡Buen día, MUNKIE!</h2>
-              <p className="text-[10px] md:text-xs text-white/30 font-medium uppercase tracking-widest">MNK Est INK • Gestión de Producción</p>
+              <h2 className="text-2xl md:text-3xl font-display font-black text-gradient tracking-tight">¡Buen día, MUNKIE!</h2>
+              <p className="text-[10px] md:text-xs text-white/20 font-bold uppercase tracking-[0.3em] mt-1">MNK Est INK • Gestión de Producción</p>
             </div>
             
-            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full md:w-auto">
-              <div className="relative w-full md:w-64">
+            <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
+              <div className="relative w-full md:w-72 group">
                 <input 
                   type="text" 
                   placeholder="Buscar proyectos..." 
-                  className="bg-white/5 border border-white/10 rounded-full px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/50 w-full"
+                  className="bg-white/[0.03] border border-white/[0.08] rounded-full px-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent/40 w-full transition-all group-focus-within:bg-white/[0.06]"
                 />
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-accent transition-colors" />
               </div>
-              <div className="flex items-center justify-between md:justify-start gap-4 w-full md:w-auto">
-                <div className="flex items-center gap-4">
-                  <Bell size={20} className="text-white/40 cursor-pointer hover:text-white" />
-                  <ShoppingCart size={20} className="text-white/40 cursor-pointer hover:text-white" />
+              <div className="flex items-center justify-between md:justify-start gap-6 w-full md:w-auto">
+                <div className="flex items-center gap-5">
+                  <div className="relative cursor-pointer hover:text-white transition-colors text-white/30">
+                    <Bell size={22} />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-accent rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                  </div>
+                  <ShoppingCart size={22} className="text-white/30 cursor-pointer hover:text-white transition-colors" />
                 </div>
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer border border-white/10">
-                  <User size={20} />
+                <div className="w-11 h-11 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center cursor-pointer hover:bg-white/[0.06] transition-all shadow-lg">
+                  <User size={22} className="text-white/60" />
                 </div>
               </div>
             </div>
@@ -405,34 +408,38 @@ export default function App() {
             {/* Left Column: Editor */}
             <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
               {/* Project Info Card */}
-              <section className="glass-card p-4 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-4 md:gap-0">
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex-1 w-full flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-brand-accent/10 text-brand-accent">
-                    <FileText size={24} />
+              <section className="glass-card p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-6 md:gap-0">
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-accent/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="relative z-10 flex-1 w-full flex items-center gap-6">
+                  <div className="p-4 rounded-[1.5rem] bg-brand-accent/10 text-brand-accent shadow-inner border border-brand-accent/10">
+                    <FileText size={32} strokeWidth={1.5} />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <input 
                         type="text" 
                         value={projectName}
                         onChange={e => setProjectName(e.target.value)}
                         placeholder="NOMBRE DEL PROYECTO"
-                        className="bg-transparent border-none text-xl md:text-2xl font-display font-black placeholder:text-white/10 focus:outline-none w-full uppercase tracking-tighter text-gradient"
+                        className="bg-transparent border-none text-2xl md:text-4xl font-display font-black placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-gradient selection:bg-brand-accent/40"
                       />
                       {projectName && (
                         <button 
                           onClick={() => setProjectName('')}
-                          className="p-1 hover:bg-white/10 rounded-full text-white/20 hover:text-white transition-colors"
+                          className="p-2 hover:bg-white/10 rounded-full text-white/10 hover:text-white transition-all"
                         >
-                          <X size={14} />
+                          <X size={18} />
                         </button>
                       )}
                     </div>
-                    <p className="text-[10px] md:text-xs text-white/30 font-medium uppercase tracking-widest mt-0.5">Gestión de Producción • {new Date().toLocaleDateString()}</p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-[10px] md:text-xs text-white/20 font-bold uppercase tracking-[0.2em]">Gestión de Producción</span>
+                      <span className="w-1 h-1 rounded-full bg-white/10" />
+                      <span className="text-[10px] md:text-xs text-brand-accent font-bold uppercase tracking-[0.2em]">{new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto relative z-10">
+                <div className="flex items-center gap-4 w-full md:w-auto relative z-10">
                   <button 
                     onClick={() => {
                       if (confirm("¿Desea limpiar el proyecto actual?")) {
@@ -440,16 +447,16 @@ export default function App() {
                         setProjectName('');
                       }
                     }}
-                    className="p-4 rounded-2xl bg-white/5 text-white/40 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-95"
+                    className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-95 group/trash"
                     title="Limpiar Todo"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={24} className="group-hover/trash:rotate-12 transition-transform" />
                   </button>
                   <button 
                     onClick={saveProject}
-                    className="btn-primary flex-1 md:flex-none"
+                    className="btn-primary flex-1 md:flex-none h-16 px-10 text-lg"
                   >
-                    <Save size={18} />
+                    <Save size={22} />
                     Finalizar
                   </button>
                 </div>
@@ -605,50 +612,71 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/30 uppercase ml-1">Cantidad</label>
-                      <div className="flex items-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-white/20 uppercase ml-2 tracking-[0.2em]">Cantidad de Piezas</label>
+                      <div className="flex items-center bg-white/[0.03] rounded-2xl border border-white/[0.08] overflow-hidden group focus-within:border-brand-accent/30 transition-colors">
                         <button 
                           onClick={() => setNewComp(prev => ({ ...prev, quantity: String(Math.max(1, (parseInt(prev.quantity) || 0) - 1)) }))}
-                          className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                          className="p-4 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
                         >
-                          <Minus size={14} />
+                          <Minus size={16} />
                         </button>
                         <input 
                           type="number" 
-                          className="w-full bg-transparent text-center text-sm font-mono focus:outline-none py-2"
+                          className="w-full bg-transparent text-center text-sm font-mono font-black focus:outline-none py-3"
                           value={newComp.quantity}
                           onChange={e => setNewComp(prev => ({ ...prev, quantity: e.target.value }))}
                         />
                         <button 
                           onClick={() => setNewComp(prev => ({ ...prev, quantity: String((parseInt(prev.quantity) || 0) + 1) }))}
-                          className="p-3 hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                          className="p-4 hover:bg-white/5 transition-colors text-white/20 hover:text-white"
                         >
-                          <Plus size={14} />
+                          <Plus size={16} />
                         </button>
                       </div>
                     </div>
 
-                    <div className="bg-white/5 rounded-2xl p-4 space-y-3">
-                      <p className="text-[10px] font-bold text-white/30 uppercase">Consumo RIP (ml)</p>
-                      {newComp.inks.map(ink => (
-                        <div key={ink.id} className="flex items-center gap-3">
-                          <span className="text-[10px] font-bold w-16 text-white/60">{ink.name}</span>
-                          <input 
-                            type="number" 
-                            step="any"
-                            className="flex-1 bg-transparent border-b border-white/10 text-xs font-mono focus:outline-none focus:border-brand-accent py-1"
-                            value={ink.ml}
-                            onChange={e => {
-                              const val = e.target.value;
-                              setNewComp(prev => ({
-                                ...prev,
-                                inks: prev.inks.map(i => i.id === ink.id ? { ...i, ml: val as any } : i)
-                              }));
-                            }}
-                          />
-                        </div>
-                      ))}
+                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-[2rem] p-6 space-y-5">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] flex items-center gap-2">
+                          <Droplets size={12} className="text-brand-accent" />
+                          Consumo RIP (ml)
+                        </p>
+                        <span className="text-[9px] font-bold text-brand-accent/40 uppercase tracking-widest">Valores por pieza</span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-4">
+                        {newComp.inks.map(ink => (
+                          <div key={ink.id} className="flex items-center gap-4 group/ink">
+                            <div className="flex items-center gap-3 w-24 shrink-0">
+                              <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${
+                                ink.id === 'cyan' ? 'bg-cyan-400' : 
+                                ink.id === 'magenta' ? 'bg-pink-500' : 
+                                ink.id === 'yellow' ? 'bg-yellow-400' : 
+                                ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
+                                'bg-white'
+                              }`} />
+                              <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider group-hover/ink:text-white/70 transition-colors">{ink.name}</span>
+                            </div>
+                            <div className="flex-1 relative">
+                              <input 
+                                type="number" 
+                                step="any"
+                                placeholder="0.00"
+                                className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl px-4 py-2.5 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent/50 transition-all text-white placeholder:text-white/5"
+                                value={ink.ml}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setNewComp(prev => ({
+                                    ...prev,
+                                    inks: prev.inks.map(i => i.id === ink.id ? { ...i, ml: val as any } : i)
+                                  }));
+                                }}
+                              />
+                              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/10 group-focus-within/ink:text-brand-accent/40 transition-colors">ML</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     <button 
@@ -671,67 +699,92 @@ export default function App() {
                   <div className="space-y-4">
                     <AnimatePresence mode="popLayout">
                       {components.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-10 md:py-20 text-white/10 gap-3">
-                          <Package size={48} strokeWidth={1} />
-                          <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Sin componentes</p>
+                        <div className="flex flex-col items-center justify-center py-20 text-white/5 gap-6">
+                          <div className="relative">
+                            <Package size={64} strokeWidth={0.5} className="text-white/[0.03]" />
+                            <motion.div 
+                              animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                              transition={{ duration: 4, repeat: Infinity }}
+                              className="absolute inset-0 flex items-center justify-center"
+                            >
+                              <Plus size={24} className="text-brand-accent/20" />
+                            </motion.div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <p className="text-xs font-display font-bold uppercase tracking-[0.3em] text-white/10">Lista Vacía</p>
+                            <p className="text-[10px] text-white/5 uppercase font-medium">Añade componentes para comenzar</p>
+                          </div>
                         </div>
                       ) : (
                         components.map(comp => (
                           <motion.div 
                             key={comp.id}
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white/[0.02] border border-white/[0.05] rounded-3xl p-5 flex flex-col gap-4 card-hover"
+                            className="bg-white/[0.01] border border-white/[0.05] rounded-[2rem] p-6 flex flex-col gap-6 card-hover group/card relative overflow-hidden"
                           >
-                            <div className="flex items-start justify-between">
-                              <div className="flex flex-col gap-1">
-                                <span className="text-sm font-bold text-white/90">{comp.name}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] text-white/30 font-mono bg-white/5 px-2 py-0.5 rounded-md">
-                                    {comp.width}x{comp.height}m
-                                  </span>
-                                  <span className="text-[10px] text-white/30 font-mono bg-white/5 px-2 py-0.5 rounded-md">
-                                    x{comp.quantity} {comp.substrateType === SubstrateType.ROLL && comp.rollsNeeded ? `(${comp.rollsNeeded.toFixed(2)} rollos)` : ''}
-                                  </span>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover/card:bg-brand-accent/10 transition-colors" />
+                            
+                            <div className="flex items-start justify-between relative z-10">
+                              <div className="flex flex-col gap-2">
+                                <h4 className="text-lg font-display font-bold text-white tracking-tight">{comp.name}</h4>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.05]">
+                                    <LayoutGrid size={12} className="text-white/20" />
+                                    <span className="text-[10px] text-white/60 font-mono font-bold">
+                                      {comp.width}m × {comp.height}m
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.05]">
+                                    <Plus size={12} className="text-white/20" />
+                                    <span className="text-[10px] text-white/60 font-mono font-bold">
+                                      x{comp.quantity} {comp.substrateType === SubstrateType.ROLL && comp.rollsNeeded ? `(${comp.rollsNeeded.toFixed(2)} rollos)` : ''}
+                                    </span>
+                                  </div>
+                                  {comp.totalUnitsTarget && (
+                                    <div className="flex items-center gap-1.5 bg-brand-accent/10 px-3 py-1 rounded-full border border-brand-accent/20">
+                                      <span className="text-[9px] text-brand-accent font-black uppercase tracking-widest">
+                                        {comp.totalUnitsTarget} Unidades
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                                {comp.totalUnitsTarget && (
-                                  <span className="text-[9px] text-brand-accent font-bold uppercase tracking-wider mt-1">
-                                    {comp.totalUnitsTarget} unidades totales
-                                  </span>
-                                )}
                               </div>
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-5">
                                 <div className="flex flex-col items-end">
-                                  <span className="text-sm font-bold text-brand-accent font-mono">{comp.inkMl.toFixed(2)}ml</span>
-                                  <span className="text-[9px] text-white/30 font-mono uppercase tracking-tighter">{(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²</span>
+                                  <div className="flex items-center gap-2">
+                                    <Droplets size={14} className="text-brand-accent" />
+                                    <span className="text-xl font-display font-black text-white tracking-tighter">{comp.inkMl.toFixed(1)}<span className="text-xs text-white/30 ml-0.5">ml</span></span>
+                                  </div>
+                                  <span className="text-[10px] text-white/20 font-bold uppercase tracking-widest mt-0.5">{(comp.inkMl / (comp.area || 1)).toFixed(2)} ml/m²</span>
                                 </div>
                                 <button 
                                   onClick={() => removeComponent(comp.id)}
-                                  className="p-2 rounded-xl bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90"
+                                  className="p-3 rounded-2xl bg-white/[0.03] text-white/10 hover:text-red-400 hover:bg-red-400/10 transition-all active:scale-90 border border-white/[0.05]"
                                 >
-                                  <X size={16} />
+                                  <X size={18} />
                                 </button>
                               </div>
                             </div>
                             
                             {/* Per Component Color Breakdown */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-3 border-t border-white/[0.05]">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-5 border-t border-white/[0.05] relative z-10">
                               {comp.inks.map(ink => (
-                                <div key={ink.id} className="flex flex-col gap-1 bg-white/[0.02] p-2 rounded-xl border border-white/[0.03]">
-                                  <div className="flex items-center gap-1.5">
-                                    <div className={`w-1.5 h-1.5 rounded-full ${
+                                <div key={ink.id} className="flex flex-col gap-2 bg-white/[0.02] p-3 rounded-2xl border border-white/[0.03] hover:bg-white/[0.04] transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full shadow-sm ${
                                       ink.id === 'cyan' ? 'bg-cyan-400' : 
                                       ink.id === 'magenta' ? 'bg-pink-500' : 
                                       ink.id === 'yellow' ? 'bg-yellow-400' : 
                                       ink.id === 'black' ? 'bg-zinc-900 border border-white/20' : 
                                       'bg-white'
                                     }`} />
-                                    <span className="text-[8px] font-bold text-white/40 uppercase truncate">{ink.name}</span>
+                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-widest truncate">{ink.name}</span>
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="text-[10px] font-mono font-bold text-white/80">{(ink.ml * comp.quantity).toFixed(2)}ml</span>
-                                    <span className="text-[7px] font-mono text-white/20 uppercase">{(ink.ml / (comp.area / comp.quantity || 1)).toFixed(2)} ml/m²</span>
+                                    <span className="text-xs font-mono font-bold text-white/80">{(ink.ml * comp.quantity).toFixed(1)}ml</span>
+                                    <span className="text-[8px] font-mono text-white/20 font-bold uppercase mt-0.5">{(ink.ml / (comp.area / comp.quantity || 1)).toFixed(2)} ml/m²</span>
                                   </div>
                                 </div>
                               ))}
@@ -837,19 +890,19 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 w-full gap-3 mt-2">
+                <div className="grid grid-cols-2 w-full gap-4 mt-2">
                   <button 
                     onClick={exportToExcel}
-                    className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white py-2 px-4 rounded-xl text-[10px] font-bold transition-all shadow-lg shadow-emerald-500/20"
+                    className="flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-600 text-white h-14 rounded-2xl text-xs font-black transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
                   >
-                    <FileSpreadsheet size={14} />
+                    <FileSpreadsheet size={18} />
                     EXCEL
                   </button>
                   <button 
                     onClick={exportToPDF}
-                    className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl text-[10px] font-bold transition-all shadow-lg shadow-red-500/20"
+                    className="flex items-center justify-center gap-3 bg-red-500 hover:bg-red-600 text-white h-14 rounded-2xl text-xs font-black transition-all shadow-xl shadow-red-500/20 active:scale-95"
                   >
-                    <FileDown size={14} />
+                    <FileDown size={18} />
                     PDF
                   </button>
                 </div>
@@ -867,11 +920,19 @@ export default function App() {
                 
                 <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                   {projects.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-white/5 gap-4">
-                      <div className="p-6 rounded-full bg-white/[0.02] border border-white/[0.05]">
-                        <History size={32} strokeWidth={1} />
+                    <div className="flex flex-col items-center justify-center py-20 text-white/5 gap-6">
+                      <div className="p-8 rounded-full bg-white/[0.01] border border-white/[0.03] relative">
+                        <History size={40} strokeWidth={0.5} />
+                        <motion.div 
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                          className="absolute inset-0 border border-dashed border-white/5 rounded-full"
+                        />
                       </div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.3em]">Sin actividad reciente</p>
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="text-xs font-display font-bold uppercase tracking-[0.3em] text-white/10">Sin Historial</p>
+                        <p className="text-[10px] text-white/5 uppercase font-medium text-center">Tus proyectos guardados aparecerán aquí</p>
+                      </div>
                     </div>
                   ) : (
                     projects.map(p => (
