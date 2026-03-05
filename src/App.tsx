@@ -375,7 +375,7 @@ export default function App() {
           {/* Top Header */}
           <header className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-4 gap-4 md:gap-0 shrink-0 border-b border-white/5 bg-brand-card/50 backdrop-blur-md">
             <div className="flex flex-col">
-              <h2 className="text-2xl md:text-4xl font-display font-black text-brand-accent tracking-tighter uppercase italic">MUNKIE PRODUCTION</h2>
+              <h2 className="text-2xl md:text-4xl font-display font-bold text-brand-accent tracking-tighter uppercase">MUNKIE PRODUCTION</h2>
               <p className="text-xs text-white/40 font-bold uppercase tracking-[0.4em] mt-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
                 System Active • Ink Management v2.0
@@ -423,7 +423,7 @@ export default function App() {
                         value={projectName}
                         onChange={e => setProjectName(e.target.value)}
                         placeholder="PROJECT NAME"
-                        className="bg-transparent border-none text-2xl md:text-5xl font-display font-black placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-white selection:bg-brand-accent/40"
+                        className="bg-transparent border-none text-2xl md:text-5xl font-display font-bold placeholder:text-white/5 focus:outline-none w-full uppercase tracking-tighter text-white selection:bg-brand-accent/40"
                       />
                     </div>
                     <div className="flex items-center gap-3 mt-1.5">
@@ -722,22 +722,22 @@ export default function App() {
                             
                             <div className="flex items-start justify-between relative z-10">
                               <div className="flex flex-col gap-2">
-                                <h4 className="text-lg font-display font-bold text-brand-accent tracking-tight uppercase italic">{comp.name}</h4>
+                                <h4 className="text-lg font-display font-bold text-brand-accent tracking-tight uppercase">{comp.name}</h4>
                                 <div className="flex flex-wrap items-center gap-2">
                                   <div className="flex items-center gap-1.5 bg-brand-secondary px-3 py-1 rounded border border-white/5">
                                     <LayoutGrid size={12} className="text-brand-accent" />
-                                    <span className="text-xs text-white/70 font-mono font-bold">
+                                    <span className="text-xs text-white/70 font-sans font-bold">
                                       {comp.width}m × {comp.height}m
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-1.5 bg-brand-secondary px-3 py-1 rounded border border-white/5">
                                     <Plus size={12} className="text-brand-accent" />
-                                    <span className="text-xs text-white/70 font-mono font-bold">
+                                    <span className="text-xs text-white/70 font-sans font-bold">
                                       x{comp.quantity} {comp.substrateType === SubstrateType.ROLL && comp.rollsNeeded ? `(${comp.rollsNeeded.toFixed(2)} rollos)` : ''}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-1.5 bg-brand-accent/20 px-3 py-1 rounded border border-brand-accent/30">
-                                    <span className="text-[11px] text-brand-accent font-black uppercase tracking-widest">
+                                    <span className="text-[11px] text-brand-accent font-bold uppercase tracking-widest">
                                       {comp.area.toFixed(2)} m²
                                     </span>
                                   </div>
@@ -795,7 +795,7 @@ export default function App() {
               {/* Statistics Card */}
               <section className="glass-card p-6 md:p-8 flex flex-col items-center justify-center gap-6 relative shrink-0 overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-accent/50 to-transparent" />
-                <div className="absolute top-6 left-6 text-xs font-bold text-brand-accent uppercase tracking-[0.4em] italic">DASHBOARD</div>
+                <div className="absolute top-6 left-6 text-xs font-bold text-brand-accent uppercase tracking-[0.4em]">DASHBOARD</div>
                 
                 <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center">
                   {/* Gauge visualization */}
@@ -821,7 +821,7 @@ export default function App() {
                   </svg>
                   <div className="absolute flex flex-col items-center">
                     <span className="text-xs md:text-sm text-white/40 font-bold uppercase tracking-widest">Ink Total</span>
-                    <span className="text-3xl md:text-6xl font-black font-display tracking-tighter text-brand-accent">{totals.totalInkWithWaste.toFixed(1)}</span>
+                    <span className="text-3xl md:text-6xl font-bold font-display tracking-tighter text-brand-accent">{totals.totalInkWithWaste.toFixed(1)}</span>
                     <div className="flex items-center gap-1 mt-1">
                       <Droplets size={12} className="text-brand-accent" />
                       <span className="text-[10px] md:text-xs text-brand-accent font-bold uppercase">ML + WASTE</span>
@@ -940,15 +940,15 @@ export default function App() {
                           <FileText size={20} />
                         </div>
                         <div className="flex-1 min-w-0 relative z-10">
-                          <h4 className="text-sm font-bold truncate uppercase tracking-tight text-brand-accent italic">{p.name}</h4>
+                          <h4 className="text-sm font-bold truncate uppercase tracking-tight text-brand-accent">{p.name}</h4>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">{p.date}</span>
                             <span className="w-1 h-1 rounded-full bg-white/10" />
-                            <span className="text-[10px] text-white/60 font-black uppercase tracking-wider">{p.totalArea.toFixed(2)} m²</span>
+                            <span className="text-[10px] text-white/60 font-bold uppercase tracking-wider">{p.totalArea.toFixed(2)} m²</span>
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0 relative z-10">
-                          <span className="text-sm font-black font-mono text-brand-accent">{p.totalInkMl.toFixed(1)}ml</span>
+                          <span className="text-sm font-bold font-sans text-brand-accent">{p.totalInkMl.toFixed(1)}ml</span>
                           <div className="flex items-center gap-2">
                             <button 
                               onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
@@ -1022,11 +1022,11 @@ function StatMini({ label, value, unit, color }: { label: string, value: string,
   return (
     <div className="flex flex-col items-center gap-2 p-3 bg-brand-surface rounded-lg border border-white/5 hover:border-brand-accent/30 transition-colors">
       <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center text-black shadow-lg mb-1`}>
-        <span className="text-xs font-black uppercase tracking-tighter">{unit}</span>
+        <span className="text-xs font-bold uppercase tracking-tighter">{unit}</span>
       </div>
       <div className="flex flex-col items-center">
-        <span className="text-sm font-black font-mono tracking-tight text-white">{value}</span>
-        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest text-center leading-tight">{label}</span>
+        <span className="text-sm font-bold font-sans tracking-tight text-white">{value}</span>
+        <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest text-center leading-tight">{label}</span>
       </div>
     </div>
   );
