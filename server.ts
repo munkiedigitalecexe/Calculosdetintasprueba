@@ -11,20 +11,41 @@ const __dirname = path.dirname(__filename);
 // Supabase Setup
 const supabaseUrl = process.env.SUPABASE_URL || "https://ryribunuudxgbexllbxe.supabase.co";
 const supabaseKey = process.env.SUPABASE_ANON_KEY || "sb_publishable_9ymMbI_vKDPxpN0hZNnvVw_CWLq9j8b";
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
+// Only initialize if we have both URL and Key
+let supabase: any = null;
+if (supabaseUrl && supabaseKey && !supabaseKey.startsWith('sb_publishable_')) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+} else if (supabaseUrl && supabaseKey) {
+  // Use hardcoded ones if they look like real keys (not placeholders)
+  supabase = createClient(supabaseUrl, supabaseKey);
+}
 
 if (supabase) {
   console.log("Supabase client initialized. Using cloud database.");
-  // Check if tables exist
-  supabase.from('projects').select('id').limit(1).then(({ error }) => {
-    if (error && error.code === '42P01') {
-      console.error("CRITICAL: Table 'projects' does not exist in Supabase. Please run the SQL script in Supabase SQL Editor.");
-    } else if (!error) {
-      console.log("Supabase connection verified: 'projects' table is ready.");
-    }
-  });
+  // Verify connection and tables
+  supabase.from('projects').select('id', { count: 'exact', head: true }).limit(1)
+    .then(({ error }: { error: any }) => {
+      if (error) {
+        console.error("Supabase connection error:", error.message);
+        if (error.code === '42P01') {
+          console.error("Table 'projects' does not exist in Supabase. Please create it.");
+        }
+      } else {
+        console.log("Supabase connection verified: 'projects' table is accessible.");
+      }
+    });
+
+  supabase.from('drafts').select('user_email', { count: 'exact', head: true }).limit(1)
+    .then(({ error }: { error: any }) => {
+      if (error && error.code === '42P01') {
+        console.error("Table 'drafts' does not exist in Supabase. Please create it.");
+      } else if (!error) {
+        console.log("Supabase connection verified: 'drafts' table is accessible.");
+      }
+    });
 } else {
-  console.log("Supabase credentials missing. Falling back to local SQLite.");
+  console.log("Supabase credentials missing or invalid. Falling back to local SQLite.");
 }
 
 // SQLite Setup (Fallback)

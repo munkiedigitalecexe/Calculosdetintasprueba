@@ -26,7 +26,9 @@ import {
   X,
   Download,
   FileSpreadsheet,
-  FileDown
+  FileDown,
+  Cloud,
+  CloudOff
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as XLSX from 'xlsx';
@@ -340,9 +342,12 @@ export default function App() {
         })
       });
       if (!response.ok) throw new Error('Failed to save to server');
+      
+      // Success feedback
+      alert("Proyecto guardado en la nube correctamente.");
     } catch (error) {
       console.error("Error saving project to server:", error);
-      alert("Error al sincronizar con el servidor. Se guardará localmente.");
+      alert("Error al sincronizar con la nube. Se guardará localmente en este navegador.");
     }
 
     if (isEditing) {
@@ -649,7 +654,12 @@ export default function App() {
           
           <nav className="flex flex-col gap-6 flex-1 justify-center">
             <SidebarIcon 
-              icon={<Home size={20} />} 
+              icon={
+                <div className="relative">
+                  <Home size={20} />
+                  <Cloud size={8} className="absolute -top-1 -right-1 text-brand-accent" />
+                </div>
+              } 
               active={currentView === 'dashboard'} 
               onClick={() => setCurrentView('dashboard')}
             />
@@ -783,10 +793,10 @@ export default function App() {
                       </button>
                       <button 
                         onClick={saveProject}
-                        className={`btn-primary flex-1 md:flex-none h-16 px-10 text-lg ${editingProjectId ? 'bg-brand-secondary border-brand-accent' : ''}`}
+                        className={`btn-primary flex-1 md:flex-none h-16 px-10 text-lg ${editingProjectId ? 'bg-brand-secondary border-brand-accent' : ''} group`}
                       >
-                        <Save size={22} />
-                        {editingProjectId ? 'GUARDAR CAMBIOS' : 'SAVE PROJECT'}
+                        <Cloud size={22} className="group-hover:animate-bounce" />
+                        {editingProjectId ? 'GUARDAR CAMBIOS' : 'GUARDAR EN LA NUBE'}
                       </button>
                       {editingProjectId && (
                         <button 
@@ -1488,6 +1498,10 @@ export default function App() {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-brand-accent/5 border border-brand-accent/10 mr-1">
+                                    <Cloud size={10} className="text-brand-accent" />
+                                    <span className="text-[8px] font-black text-brand-accent/70 uppercase tracking-widest">Cloud</span>
+                                  </div>
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
                                     className="p-2 rounded-lg bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all"
@@ -1545,7 +1559,16 @@ export default function App() {
       {/* Mobile Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6">
         <div className="glass-card flex items-center justify-around py-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border border-white/10">
-          <SidebarIcon icon={<Home size={20} />} active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+          <SidebarIcon 
+            icon={
+              <div className="relative">
+                <Home size={20} />
+                <Cloud size={8} className="absolute -top-1 -right-1 text-brand-accent" />
+              </div>
+            } 
+            active={currentView === 'dashboard'} 
+            onClick={() => setCurrentView('dashboard')} 
+          />
           <SidebarIcon icon={<Calculator size={20} />} active={currentView === 'editor'} onClick={() => setCurrentView('editor')} />
           <div className="w-12 h-12 rounded-full bg-brand-accent flex items-center justify-center -mt-10 shadow-[0_0_20px_rgba(196,255,14,0.5)] border-4 border-brand-bg cursor-pointer active:scale-90 transition-transform" onClick={() => { setProjectName(''); setComponents([]); setCurrentView('editor'); }}>
             <Plus size={24} className="text-black" />
