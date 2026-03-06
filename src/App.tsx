@@ -60,7 +60,6 @@ export default function App() {
   const [loginError, setLoginError] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'editor' | 'dashboard'>('editor');
-  const [dbStatus, setDbStatus] = useState<{ status: string, database: string } | null>(null);
   
   // Form state for a single component being added
   const [newComp, setNewComp] = useState({
@@ -129,19 +128,6 @@ export default function App() {
       }
     };
     fetchData();
-
-    const checkHealth = async () => {
-      try {
-        const res = await fetch('/api/health');
-        const data = await res.json();
-        setDbStatus(data);
-      } catch (e) {
-        setDbStatus({ status: 'offline', database: 'none' });
-      }
-    };
-    checkHealth();
-    const interval = setInterval(checkHealth, 30000); // Check every 30s
-    return () => clearInterval(interval);
   }, [userEmail, editingProjectId]);
 
   useEffect(() => {
@@ -712,21 +698,6 @@ export default function App() {
                 Diseñado y desarrollado con ❤️ por<br/>
                 <span className="text-brand-accent">Munkie Digital Ecuador</span>
               </a>
-              
-              {dbStatus && (
-                <div className="flex items-center gap-2 mb-4">
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className={`text-[10px] ${dbStatus.status === 'online' ? 'text-brand-accent' : 'text-red-500'}`}
-                  >
-                    ♥
-                  </motion.div>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-white/30">
-                    {dbStatus.database} {dbStatus.status}
-                  </span>
-                </div>
-              )}
               <div className="w-14 h-14 rounded-full border-2 border-brand-accent overflow-hidden shadow-[0_0_25px_rgba(196,255,14,0.4)] bg-white relative group cursor-pointer">
                 <img src={LOGO_URL} alt="User" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-brand-accent text-black text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg whitespace-nowrap">
@@ -1543,16 +1514,8 @@ export default function App() {
       </div>
 
       {/* Credits Footer */}
-      <footer className="text-[10px] md:text-xs font-black text-white/30 uppercase tracking-[0.3em] text-center py-2 md:py-4 shrink-0 px-4 flex flex-col items-center gap-1">
-        <div>
-          desarrollado por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">Munkie Digital Ecuador</a> © 2026 Todos los derechos reservados
-        </div>
-        {dbStatus && (
-          <div className="flex items-center gap-1.5 opacity-50">
-            <span className={`${dbStatus.status === 'online' ? 'text-brand-accent' : 'text-red-500'}`}>♥</span>
-            <span className="text-[8px] tracking-widest">{dbStatus.database} {dbStatus.status}</span>
-          </div>
-        )}
+      <footer className="text-[10px] md:text-xs font-black text-white/30 uppercase tracking-[0.3em] text-center py-2 md:py-4 shrink-0 px-4">
+        desarrollado por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">Munkie Digital Ecuador</a> © 2026 Todos los derechos reservados
       </footer>
 
       {/* Social Bubbles - Visible only when logged in */}
