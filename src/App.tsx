@@ -1408,8 +1408,8 @@ export default function App() {
         desarrollado con amor por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">munkiedigitalecuador</a> © 2026
       </footer>
 
-      {/* Social Bubbles - Hidden on Mobile */}
-      <div className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 flex-col gap-6 z-50">
+      {/* Social Bubbles - Visible in all modes */}
+      <div className="flex fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex-col gap-4 md:gap-6 z-[300]">
         <SocialIcon 
           href="https://instagram.com/bryant_ldu" 
           delay={0}
