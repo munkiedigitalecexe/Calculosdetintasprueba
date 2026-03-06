@@ -3,13 +3,32 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createClient } from '@supabase/supabase-js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const db = new Database("munkie.db");
+// Supabase Setup
+const supabaseUrl = process.env.SUPABASE_URL || "https://ryribunuudxgbexllbxe.supabase.co";
+const supabaseKey = process.env.SUPABASE_ANON_KEY || "sb_publishable_9ymMbI_vKDPxpN0hZNnvVw_CWLq9j8b";
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
-// Initialize database
+if (supabase) {
+  console.log("Supabase client initialized. Using cloud database.");
+  // Check if tables exist
+  supabase.from('projects').select('id').limit(1).then(({ error }) => {
+    if (error && error.code === '42P01') {
+      console.error("CRITICAL: Table 'projects' does not exist in Supabase. Please run the SQL script in Supabase SQL Editor.");
+    } else if (!error) {
+      console.log("Supabase connection verified: 'projects' table is ready.");
+    }
+  });
+} else {
+  console.log("Supabase credentials missing. Falling back to local SQLite.");
+}
+
+// SQLite Setup (Fallback)
+const db = new Database("munkie.db");
 db.exec(`
   CREATE TABLE IF NOT EXISTS projects (
     id TEXT PRIMARY KEY,
@@ -30,24 +49,6 @@ db.exec(`
   );
 `);
 
-// Migration: Ensure all columns exist
-try {
-  const columns = db.prepare("PRAGMA table_info(projects)").all() as any[];
-  const columnNames = columns.map(c => c.name);
-  
-  if (!columnNames.includes("user_email")) {
-    db.exec("ALTER TABLE projects ADD COLUMN user_email TEXT;");
-  }
-  if (!columnNames.includes("total_ink")) {
-    db.exec("ALTER TABLE projects ADD COLUMN total_ink REAL;");
-  }
-  if (!columnNames.includes("total_area")) {
-    db.exec("ALTER TABLE projects ADD COLUMN total_area REAL;");
-  }
-} catch (e) {
-  console.error("Migration error:", e);
-}
-
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -55,15 +56,33 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-  app.get("/api/projects", (req, res) => {
+  app.get("/api/projects", async (req, res) => {
     try {
-      // Remove email filter to allow shared access as requested
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        return res.json(data.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          date: p.date,
+          totalInkMl: p.total_ink,
+          totalArea: p.total_area,
+          components: typeof p.components_json === 'string' ? JSON.parse(p.components_json) : p.components_json
+        })));
+      }
+
+      // Fallback to SQLite
       const projects = db.prepare("SELECT * FROM projects ORDER BY created_at DESC").all();
       res.json(projects.map((p: any) => ({
         id: p.id,
         name: p.name,
         date: p.date,
-        totalInk: p.total_ink,
+        totalInkMl: p.total_ink,
         totalArea: p.total_area,
         components: JSON.parse(p.components_json)
       })));
@@ -73,10 +92,32 @@ async function startServer() {
     }
   });
 
-  app.post("/api/projects", (req, res) => {
+  app.post("/api/projects", async (req, res) => {
     const { id, userEmail, name, date, totalInkMl, totalArea, components } = req.body;
     
+    if (!id || !name) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
     try {
+      if (supabase) {
+        const { error } = await supabase
+          .from('projects')
+          .upsert({
+            id,
+            user_email: userEmail || 'anonymous',
+            name,
+            date,
+            total_ink: totalInkMl || 0,
+            total_area: totalArea || 0,
+            components_json: components
+          });
+        
+        if (error) throw error;
+        return res.json({ success: true });
+      }
+
+      // Fallback to SQLite
       const stmt = db.prepare(`
         INSERT OR REPLACE INTO projects (id, user_email, name, date, total_ink, total_area, components_json)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -89,9 +130,15 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/projects/:id", (req, res) => {
+  app.delete("/api/projects/:id", async (req, res) => {
     const { id } = req.params;
     try {
+      if (supabase) {
+        const { error } = await supabase.from('projects').delete().eq('id', id);
+        if (error) throw error;
+        return res.json({ success: true });
+      }
+
       db.prepare("DELETE FROM projects WHERE id = ?").run(id);
       res.json({ success: true });
     } catch (error) {
@@ -101,11 +148,29 @@ async function startServer() {
   });
 
   // Draft Routes
-  app.get("/api/draft", (req, res) => {
+  app.get("/api/draft", async (req, res) => {
     const userEmail = req.query.email as string;
     if (!userEmail) return res.status(400).json({ error: "Email required" });
 
     try {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('drafts')
+          .select('*')
+          .eq('user_email', userEmail)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows returned"
+        
+        if (data) {
+          return res.json({
+            projectName: data.project_name,
+            components: typeof data.components_json === 'string' ? JSON.parse(data.components_json) : data.components_json
+          });
+        }
+        return res.json(null);
+      }
+
       const draft: any = db.prepare("SELECT * FROM drafts WHERE user_email = ?").get(userEmail);
       if (draft) {
         res.json({
@@ -116,15 +181,30 @@ async function startServer() {
         res.json(null);
       }
     } catch (error) {
+      console.error("Error fetching draft:", error);
       res.status(500).json({ error: "Failed to fetch draft" });
     }
   });
 
-  app.post("/api/draft", (req, res) => {
+  app.post("/api/draft", async (req, res) => {
     const { userEmail, projectName, components } = req.body;
     if (!userEmail) return res.status(400).json({ error: "Email required" });
 
     try {
+      if (supabase) {
+        const { error } = await supabase
+          .from('drafts')
+          .upsert({
+            user_email: userEmail,
+            project_name: projectName,
+            components_json: components,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (error) throw error;
+        return res.json({ success: true });
+      }
+
       const stmt = db.prepare(`
         INSERT OR REPLACE INTO drafts (user_email, project_name, components_json, updated_at)
         VALUES (?, ?, ?, CURRENT_TIMESTAMP)
@@ -132,6 +212,7 @@ async function startServer() {
       stmt.run(userEmail, projectName, JSON.stringify(components));
       res.json({ success: true });
     } catch (error) {
+      console.error("Error saving draft:", error);
       res.status(500).json({ error: "Failed to save draft" });
     }
   });

@@ -101,6 +101,7 @@ export default function App() {
         const projectsRes = await fetch('/api/projects');
         if (projectsRes.ok) {
           const data = await projectsRes.json();
+          console.log("Fetched projects from server:", data.length);
           setProjects(data);
         }
 
