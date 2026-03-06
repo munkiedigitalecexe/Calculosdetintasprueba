@@ -135,15 +135,18 @@ export default function App() {
       localStorage.setItem('mnk_ink_role', 'admin');
       localStorage.setItem('mnk_ink_email', email);
       setLoginError('');
-    } else if (email === 'holamunkie@demo.com') {
-      setUserRole('guest');
-      setUserEmail(email);
-      localStorage.setItem('mnk_ink_role', 'guest');
-      localStorage.setItem('mnk_ink_email', email);
-      setLoginError('');
     } else {
-      setLoginError('Correo no autorizado. Contacte al administrador.');
+      setLoginError('Acceso denegado. Solo el administrador puede ingresar por correo.');
     }
+  };
+
+  const handleGuestLogin = () => {
+    const guestEmail = 'invitado@munkie.com';
+    setUserRole('guest');
+    setUserEmail(guestEmail);
+    localStorage.setItem('mnk_ink_role', 'guest');
+    localStorage.setItem('mnk_ink_email', guestEmail);
+    setLoginError('');
   };
 
   const logout = () => {
@@ -436,56 +439,55 @@ export default function App() {
                 <p className="text-white/40 text-sm font-bold uppercase tracking-widest">Ingreso al Sistema de Producción</p>
               </div>
 
-              <form onSubmit={handleLogin} className="w-full space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Correo Electrónico</label>
-                  <input 
-                    type="email" 
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="ejemplo@munkie.com"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl h-14 px-6 text-sm font-bold focus:outline-none focus:border-brand-accent/50 focus:bg-white/[0.05] transition-all"
-                    required
-                  />
-                </div>
-
-                {loginError && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-400 text-[10px] font-bold uppercase tracking-widest text-center"
-                  >
-                    {loginError}
-                  </motion.p>
-                )}
-
+              <div className="w-full space-y-6">
                 <button 
-                  type="submit"
-                  className="w-full bg-brand-accent text-black h-14 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-accent/20"
+                  onClick={handleGuestLogin}
+                  className="w-full group relative overflow-hidden bg-white/5 border border-white/10 text-white p-6 rounded-3xl font-black uppercase tracking-widest flex items-center justify-between hover:bg-white/10 hover:scale-[1.02] transition-all"
                 >
-                  Entrar al Sistema
+                  <div className="flex flex-col items-start">
+                    <span className="text-lg">Ingresar como Invitado</span>
+                    <span className="text-[10px] opacity-40">Acceso de solo lectura</span>
+                  </div>
+                  <Search size={32} />
                 </button>
 
-                <div className="pt-4 flex flex-col gap-2">
-                  <p className="text-[10px] text-white/20 uppercase font-bold tracking-widest text-center">Accesos Rápidos (Demo)</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button 
-                      type="button"
-                      onClick={() => setLoginEmail('bryanstalin11@gmail.com')}
-                      className="text-[9px] font-bold text-white/40 hover:text-brand-accent transition-colors uppercase"
-                    >
-                      Admin Demo
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => setLoginEmail('holamunkie@demo.com')}
-                      className="text-[9px] font-bold text-white/40 hover:text-brand-accent transition-colors uppercase"
-                    >
-                      Guest Demo
-                    </button>
-                  </div>
+                <div className="relative flex items-center gap-4 py-2">
+                  <div className="flex-1 h-px bg-white/10" />
+                  <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">O</span>
+                  <div className="flex-1 h-px bg-white/10" />
                 </div>
-              </form>
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Acceso Administrador (Correo)</label>
+                    <input 
+                      type="email" 
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      placeholder="bryanstalin11@gmail.com"
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl h-14 px-6 text-sm font-bold focus:outline-none focus:border-brand-accent/50 focus:bg-white/[0.05] transition-all"
+                      required
+                    />
+                  </div>
+
+                  {loginError && (
+                    <motion.p 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-400 text-[10px] font-bold uppercase tracking-widest text-center"
+                    >
+                      {loginError}
+                    </motion.p>
+                  )}
+
+                  <button 
+                    type="submit"
+                    className="w-full bg-brand-accent text-black h-14 rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand-accent/20"
+                  >
+                    Validar Administrador
+                  </button>
+                </form>
+              </div>
 
               <p className="text-[10px] text-white/20 uppercase font-bold tracking-widest">Desarrollado por Munkie Digital Ecuador</p>
             </div>
