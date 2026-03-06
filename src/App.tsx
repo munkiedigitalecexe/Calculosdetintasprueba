@@ -52,6 +52,7 @@ export default function App() {
   const [loginEmail, setLoginEmail] = useState<string>('');
   const [loginError, setLoginError] = useState<string>('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<'editor' | 'dashboard'>('editor');
   
   // Form state for a single component being added
   const [newComp, setNewComp] = useState({
@@ -263,6 +264,13 @@ export default function App() {
     return { totalArea, totalInkMl, totalInkWithWaste, mlPerM2, inkTotals };
   }, [components]);
 
+  const globalStats = useMemo(() => {
+    const totalArea = projects.reduce((sum, p) => sum + p.totalArea, 0);
+    const totalInk = projects.reduce((sum, p) => sum + p.totalInkMl, 0);
+    const totalProjects = projects.length;
+    return { totalArea, totalInk, totalProjects };
+  }, [projects]);
+
   const saveProject = () => {
     if (!projectName) {
       alert("Nombre del proyecto requerido");
@@ -284,6 +292,7 @@ export default function App() {
     setProjects(prev => [project, ...prev]);
     setProjectName('');
     setComponents([]);
+    setCurrentView('dashboard');
   };
 
   const deleteProject = (id: string) => {
@@ -296,6 +305,7 @@ export default function App() {
     }
     setProjectName(project.name);
     setComponents(project.components);
+    setCurrentView('editor');
   };
 
   const exportToExcel = () => {
@@ -546,13 +556,21 @@ export default function App() {
           </div>
           
           <nav className="flex flex-col gap-6 flex-1 justify-center">
-            <SidebarIcon icon={<Home size={20} />} active />
-            <SidebarIcon icon={<Package size={20} />} />
+            <SidebarIcon 
+              icon={<Home size={20} />} 
+              active={currentView === 'dashboard'} 
+              onClick={() => setCurrentView('dashboard')}
+            />
+            <SidebarIcon 
+              icon={<Calculator size={20} />} 
+              active={currentView === 'editor'} 
+              onClick={() => setCurrentView('editor')}
+            />
             <SidebarIcon icon={<PieChart size={20} />} />
             <SidebarIcon icon={<Settings size={20} />} />
           </nav>
 
-          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_rgba(196,255,14,0.4)]" onClick={() => { setProjectName(''); setComponents([]); }}>
+          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_rgba(196,255,14,0.4)]" onClick={() => { setProjectName(''); setComponents([]); setCurrentView('editor'); }}>
             <Plus size={20} className="text-black" />
           </div>
         </aside>
@@ -619,9 +637,18 @@ export default function App() {
           </div>
 
           {/* Dashboard Grid */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Left Column: Editor */}
-            <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
+          <div className="flex-1 flex flex-col min-h-0">
+            <AnimatePresence mode="wait">
+              {currentView === 'editor' ? (
+                <motion.div 
+                  key="editor"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-6"
+                >
+                  {/* Left Column: Editor */}
+                  <div className="col-span-1 md:col-span-12 lg:col-span-8 flex flex-col gap-4 min-h-0">
               {/* Project Info Card */}
               <section className="glass-card p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between shrink-0 relative overflow-hidden group gap-6 md:gap-0 border-l-4 border-l-brand-accent">
                 <div className="relative z-10 flex-1 w-full flex items-center gap-6">
@@ -1221,6 +1248,157 @@ export default function App() {
                 </div>
               </section>
             </div>
+          </motion.div>
+            ) : (
+              <motion.div 
+                key="dashboard"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex-1 flex flex-col gap-8"
+              >
+                {/* Global Stats Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="glass-card p-8 border-l-4 border-l-brand-accent relative overflow-hidden group">
+                    <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <Package size={120} />
+                    </div>
+                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.3em] mb-4">Total Proyectos</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-6xl font-display font-black text-white tracking-tighter">{globalStats.totalProjects}</p>
+                      <span className="text-brand-accent font-bold text-sm uppercase">Registros</span>
+                    </div>
+                  </div>
+                  <div className="glass-card p-8 border-l-4 border-l-brand-accent relative overflow-hidden group">
+                    <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <LayoutGrid size={120} />
+                    </div>
+                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.3em] mb-4">Área Total Estimada</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-6xl font-display font-black text-white tracking-tighter">{globalStats.totalArea.toFixed(1)}</p>
+                      <span className="text-brand-accent font-bold text-sm uppercase">m²</span>
+                    </div>
+                  </div>
+                  <div className="glass-card p-8 border-l-4 border-l-brand-accent relative overflow-hidden group">
+                    <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      <Droplets size={120} />
+                    </div>
+                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.3em] mb-4">Consumo Total Tinta</h3>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-6xl font-display font-black text-white tracking-tighter">{globalStats.totalInk.toFixed(0)}</p>
+                      <span className="text-brand-accent font-bold text-sm uppercase">ml</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Projects Grid */}
+                <div className="flex-1 flex flex-col gap-6 min-h-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-display font-bold text-white/90 uppercase tracking-[0.4em] flex items-center gap-3">
+                      <History size={20} className="text-brand-accent" />
+                      Historial de Producción
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{projects.length} Proyectos Guardados</span>
+                      <div className="h-4 w-px bg-white/10" />
+                      <button 
+                        onClick={() => setCurrentView('editor')}
+                        className="text-[10px] font-black text-brand-accent hover:underline uppercase tracking-widest"
+                      >
+                        + Nuevo Proyecto
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                    {projects.length === 0 ? (
+                      <div className="glass-card flex flex-col items-center justify-center py-32 text-white/5 gap-8">
+                        <div className="p-12 rounded-full bg-white/[0.01] border border-white/[0.03] relative">
+                          <History size={64} strokeWidth={0.5} />
+                          <motion.div 
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                            className="absolute inset-0 border border-dashed border-white/10 rounded-full"
+                          />
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                          <p className="text-lg font-display font-bold uppercase tracking-[0.5em] text-white/20">Base de Datos Vacía</p>
+                          <p className="text-xs text-white/10 uppercase font-medium tracking-widest">Inicia una nueva estimación para verla aquí</p>
+                        </div>
+                        <button 
+                          onClick={() => setCurrentView('editor')}
+                          className="btn-primary px-8 h-12 text-sm"
+                        >
+                          Crear Primer Proyecto
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {projects.map(p => (
+                          <motion.div 
+                            key={p.id}
+                            layoutId={p.id}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ y: -5 }}
+                            onClick={() => loadProject(p)}
+                            className="glass-card p-6 group cursor-pointer border border-white/5 hover:border-brand-accent/30 transition-all relative overflow-hidden"
+                          >
+                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                              <FileText size={48} />
+                            </div>
+                            <div className="flex flex-col gap-4 relative z-10">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-brand-accent/60 uppercase tracking-widest">{p.date}</span>
+                                <h4 className="text-xl font-display font-bold text-white uppercase tracking-tight group-hover:text-brand-accent transition-colors truncate">{p.name}</h4>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Área Total</span>
+                                  <span className="text-lg font-bold text-white/80">{p.totalArea.toFixed(2)} <span className="text-[10px] text-white/30">m²</span></span>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">Tinta Total</span>
+                                  <span className="text-lg font-bold text-white/80">{p.totalInkMl.toFixed(1)} <span className="text-[10px] text-white/30">ml</span></span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between">
+                                <div className="flex -space-x-2">
+                                  {p.components.slice(0, 3).map((c, i) => (
+                                    <div key={i} className="w-6 h-6 rounded-full bg-brand-accent/20 border border-brand-bg flex items-center justify-center text-[8px] font-bold text-brand-accent">
+                                      {c.name.charAt(0)}
+                                    </div>
+                                  ))}
+                                  {p.components.length > 3 && (
+                                    <div className="w-6 h-6 rounded-full bg-white/5 border border-brand-bg flex items-center justify-center text-[8px] font-bold text-white/40">
+                                      +{p.components.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}
+                                    className="p-2 rounded-lg bg-white/5 text-white/20 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                  <div className="p-2 rounded-lg bg-brand-accent/10 text-brand-accent">
+                                    <ArrowRight size={14} />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            </AnimatePresence>
           </div>
         </main>
       </div>
@@ -1255,9 +1433,9 @@ export default function App() {
       {/* Mobile Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6">
         <div className="glass-card flex items-center justify-around py-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border border-white/10">
-          <SidebarIcon icon={<Home size={20} />} active />
-          <SidebarIcon icon={<Package size={20} />} />
-          <div className="w-12 h-12 rounded-full bg-brand-accent flex items-center justify-center -mt-10 shadow-[0_0_20px_rgba(196,255,14,0.5)] border-4 border-brand-bg cursor-pointer active:scale-90 transition-transform" onClick={() => { setProjectName(''); setComponents([]); }}>
+          <SidebarIcon icon={<Home size={20} />} active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
+          <SidebarIcon icon={<Calculator size={20} />} active={currentView === 'editor'} onClick={() => setCurrentView('editor')} />
+          <div className="w-12 h-12 rounded-full bg-brand-accent flex items-center justify-center -mt-10 shadow-[0_0_20px_rgba(196,255,14,0.5)] border-4 border-brand-bg cursor-pointer active:scale-90 transition-transform" onClick={() => { setProjectName(''); setComponents([]); setCurrentView('editor'); }}>
             <Plus size={24} className="text-black" />
           </div>
           <SidebarIcon icon={<PieChart size={20} />} />
@@ -1268,9 +1446,10 @@ export default function App() {
   );
 }
 
-function SidebarIcon({ icon, active = false }: { icon: React.ReactNode, active?: boolean }) {
+function SidebarIcon({ icon, active = false, onClick }: { icon: React.ReactNode, active?: boolean, onClick?: () => void }) {
   return (
     <motion.div 
+      onClick={onClick}
       whileHover={{ scale: 1.1, backgroundColor: "rgba(196, 255, 14, 0.1)" }}
       whileTap={{ scale: 0.95 }}
       className={`w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center cursor-pointer transition-all relative ${
