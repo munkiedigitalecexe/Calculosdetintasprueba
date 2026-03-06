@@ -13,12 +13,20 @@ const db = new Database("munkie.db");
 db.exec(`
   CREATE TABLE IF NOT EXISTS projects (
     id TEXT PRIMARY KEY,
+    user_email TEXT,
     name TEXT,
     date TEXT,
     total_ink REAL,
     total_area REAL,
     components_json TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS drafts (
+    user_email TEXT PRIMARY KEY,
+    project_name TEXT,
+    components_json TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
 
@@ -30,8 +38,11 @@ async function startServer() {
 
   // API Routes
   app.get("/api/projects", (req, res) => {
+    const userEmail = req.query.email as string;
+    if (!userEmail) return res.status(400).json({ error: "Email required" });
+
     try {
-      const projects = db.prepare("SELECT * FROM projects ORDER BY created_at DESC").all();
+      const projects = db.prepare("SELECT * FROM projects WHERE user_email = ? ORDER BY created_at DESC").all(userEmail);
       res.json(projects.map((p: any) => ({
         id: p.id,
         name: p.name,
@@ -47,13 +58,15 @@ async function startServer() {
   });
 
   app.post("/api/projects", (req, res) => {
-    const { id, name, date, totalInk, totalArea, components } = req.body;
+    const { id, userEmail, name, date, totalInk, totalArea, components } = req.body;
+    if (!userEmail) return res.status(400).json({ error: "Email required" });
+
     try {
       const stmt = db.prepare(`
-        INSERT OR REPLACE INTO projects (id, name, date, total_ink, total_area, components_json)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO projects (id, user_email, name, date, total_ink, total_area, components_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `);
-      stmt.run(id, name, date, totalInk, totalArea, JSON.stringify(components));
+      stmt.run(id, userEmail, name, date, totalInk, totalArea, JSON.stringify(components));
       res.json({ success: true });
     } catch (error) {
       console.error("Error saving project:", error);
@@ -69,6 +82,42 @@ async function startServer() {
     } catch (error) {
       console.error("Error deleting project:", error);
       res.status(500).json({ error: "Failed to delete project" });
+    }
+  });
+
+  // Draft Routes
+  app.get("/api/draft", (req, res) => {
+    const userEmail = req.query.email as string;
+    if (!userEmail) return res.status(400).json({ error: "Email required" });
+
+    try {
+      const draft: any = db.prepare("SELECT * FROM drafts WHERE user_email = ?").get(userEmail);
+      if (draft) {
+        res.json({
+          projectName: draft.project_name,
+          components: JSON.parse(draft.components_json)
+        });
+      } else {
+        res.json(null);
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch draft" });
+    }
+  });
+
+  app.post("/api/draft", (req, res) => {
+    const { userEmail, projectName, components } = req.body;
+    if (!userEmail) return res.status(400).json({ error: "Email required" });
+
+    try {
+      const stmt = db.prepare(`
+        INSERT OR REPLACE INTO drafts (user_email, project_name, components_json, updated_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      `);
+      stmt.run(userEmail, projectName, JSON.stringify(components));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to save draft" });
     }
   });
 

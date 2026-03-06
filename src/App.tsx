@@ -91,42 +91,58 @@ export default function App() {
       setUserRole(savedRole as 'admin' | 'guest');
       setUserEmail(savedEmail);
     }
+  }, []);
 
-    const savedProjects = localStorage.getItem('mnk_ink_projects');
-    if (savedProjects) {
-      try {
-        setProjects(JSON.parse(savedProjects));
-      } catch (e) {
-        console.error("Failed to load projects", e);
-      }
-    }
+  useEffect(() => {
+    if (!userEmail) return;
 
-    // Fetch projects from server
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/projects');
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch projects
+        const projectsRes = await fetch(`/api/projects?email=${encodeURIComponent(userEmail)}`);
+        if (projectsRes.ok) {
+          const data = await projectsRes.json();
           setProjects(data);
         }
+
+        // Fetch draft
+        const draftRes = await fetch(`/api/draft?email=${encodeURIComponent(userEmail)}`);
+        if (draftRes.ok) {
+          const draft = await draftRes.json();
+          if (draft) {
+            setProjectName(draft.projectName);
+            setComponents(draft.components);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching projects from server:", error);
+        console.error("Error fetching data from server:", error);
       }
     };
-    fetchProjects();
-    
-    const savedCurrentName = localStorage.getItem('mnk_ink_current_name');
-    if (savedCurrentName) setProjectName(savedCurrentName);
-    
-    const savedCurrentComponents = localStorage.getItem('mnk_ink_current_components');
-    if (savedCurrentComponents) {
+    fetchData();
+  }, [userEmail]);
+
+  useEffect(() => {
+    if (!userEmail || (projectName === '' && components.length === 0)) return;
+
+    const saveDraft = async () => {
       try {
-        setComponents(JSON.parse(savedCurrentComponents));
-      } catch (e) {
-        console.error("Failed to load current components", e);
+        await fetch('/api/draft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userEmail,
+            projectName,
+            components
+          })
+        });
+      } catch (error) {
+        console.error("Error saving draft to server:", error);
       }
-    }
-  }, []);
+    };
+
+    const timer = setTimeout(saveDraft, 2000); // Debounce save
+    return () => clearTimeout(timer);
+  }, [userEmail, projectName, components]);
 
   useEffect(() => {
     localStorage.setItem('mnk_ink_projects', JSON.stringify(projects));
@@ -308,7 +324,10 @@ export default function App() {
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(project)
+        body: JSON.stringify({
+          ...project,
+          userEmail
+        })
       });
       if (!response.ok) throw new Error('Failed to save to server');
     } catch (error) {
