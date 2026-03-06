@@ -69,6 +69,7 @@ export default function App() {
 
   const [productionMode, setProductionMode] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 5000);
@@ -94,24 +95,24 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!userEmail) return;
-
     const fetchData = async () => {
       try {
-        // Fetch projects
-        const projectsRes = await fetch(`/api/projects?email=${encodeURIComponent(userEmail)}`);
+        // Fetch projects - Remove email filter for shared access
+        const projectsRes = await fetch('/api/projects');
         if (projectsRes.ok) {
           const data = await projectsRes.json();
           setProjects(data);
         }
 
-        // Fetch draft
-        const draftRes = await fetch(`/api/draft?email=${encodeURIComponent(userEmail)}`);
-        if (draftRes.ok) {
-          const draft = await draftRes.json();
-          if (draft) {
-            setProjectName(draft.projectName);
-            setComponents(draft.components);
+        // Fetch draft if email is available
+        if (userEmail) {
+          const draftRes = await fetch(`/api/draft?email=${encodeURIComponent(userEmail)}`);
+          if (draftRes.ok) {
+            const draft = await draftRes.json();
+            if (draft && !editingProjectId) { // Don't overwrite if editing
+              setProjectName(draft.projectName);
+              setComponents(draft.components);
+            }
           }
         }
       } catch (error) {
@@ -119,7 +120,7 @@ export default function App() {
       }
     };
     fetchData();
-  }, [userEmail]);
+  }, [userEmail, editingProjectId]);
 
   useEffect(() => {
     if (!userEmail || (projectName === '' && components.length === 0)) return;
@@ -311,8 +312,9 @@ export default function App() {
       return;
     }
 
+    const isEditing = !!editingProjectId;
     const project: Project = {
-      id: crypto.randomUUID(),
+      id: editingProjectId || crypto.randomUUID(),
       name: projectName,
       date: new Date().toLocaleString(),
       components: [...components],
@@ -326,7 +328,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...project,
-          userEmail
+          userEmail: userEmail || 'anonymous'
         })
       });
       if (!response.ok) throw new Error('Failed to save to server');
@@ -335,9 +337,15 @@ export default function App() {
       alert("Error al sincronizar con el servidor. Se guardará localmente.");
     }
 
-    setProjects(prev => [project, ...prev]);
+    if (isEditing) {
+      setProjects(prev => prev.map(p => p.id === project.id ? project : p));
+    } else {
+      setProjects(prev => [project, ...prev]);
+    }
+    
     setProjectName('');
     setComponents([]);
+    setEditingProjectId(null);
     setCurrentView('dashboard');
   };
 
@@ -359,6 +367,7 @@ export default function App() {
     if (components.length > 0 && !confirm("¿Desea cargar este proyecto? Se perderán los cambios actuales.")) {
       return;
     }
+    setEditingProjectId(project.id);
     setProjectName(project.name);
     setComponents(project.components);
     setCurrentView('editor');
@@ -645,7 +654,7 @@ export default function App() {
             <SidebarIcon icon={<Settings size={20} />} />
           </nav>
 
-          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_rgba(196,255,14,0.4)]" onClick={() => { setProjectName(''); setComponents([]); setCurrentView('editor'); }}>
+          <div className="w-10 h-10 rounded-lg bg-brand-accent flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shrink-0 shadow-[0_0_15px_rgba(196,255,14,0.4)]" onClick={() => { setEditingProjectId(null); setProjectName(''); setComponents([]); setCurrentView('editor'); }}>
             <Plus size={20} className="text-black" />
           </div>
         </aside>
@@ -766,11 +775,24 @@ export default function App() {
                       </button>
                       <button 
                         onClick={saveProject}
-                        className="btn-primary flex-1 md:flex-none h-16 px-10 text-lg"
+                        className={`btn-primary flex-1 md:flex-none h-16 px-10 text-lg ${editingProjectId ? 'bg-brand-secondary border-brand-accent' : ''}`}
                       >
                         <Save size={22} />
-                        SAVE PROJECT
+                        {editingProjectId ? 'GUARDAR CAMBIOS' : 'SAVE PROJECT'}
                       </button>
+                      {editingProjectId && (
+                        <button 
+                          onClick={() => {
+                            setEditingProjectId(null);
+                            setProjectName('');
+                            setComponents([]);
+                          }}
+                          className="p-5 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-white hover:bg-white/10 transition-all active:scale-95"
+                          title="Nuevo Proyecto"
+                        >
+                          <Plus size={24} />
+                        </button>
+                      )}
                     </>
                   )}
                   {userRole === 'guest' && (
@@ -1377,7 +1399,12 @@ export default function App() {
                       <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">{projects.length} Proyectos Guardados</span>
                       <div className="h-4 w-px bg-white/10" />
                       <button 
-                        onClick={() => setCurrentView('editor')}
+                        onClick={() => {
+                          setEditingProjectId(null);
+                          setProjectName('');
+                          setComponents([]);
+                          setCurrentView('editor');
+                        }}
                         className="text-[10px] font-black text-brand-accent hover:underline uppercase tracking-widest"
                       >
                         + Nuevo Proyecto

@@ -30,6 +30,24 @@ db.exec(`
   );
 `);
 
+// Migration: Ensure all columns exist
+try {
+  const columns = db.prepare("PRAGMA table_info(projects)").all() as any[];
+  const columnNames = columns.map(c => c.name);
+  
+  if (!columnNames.includes("user_email")) {
+    db.exec("ALTER TABLE projects ADD COLUMN user_email TEXT;");
+  }
+  if (!columnNames.includes("total_ink")) {
+    db.exec("ALTER TABLE projects ADD COLUMN total_ink REAL;");
+  }
+  if (!columnNames.includes("total_area")) {
+    db.exec("ALTER TABLE projects ADD COLUMN total_area REAL;");
+  }
+} catch (e) {
+  console.error("Migration error:", e);
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -38,11 +56,9 @@ async function startServer() {
 
   // API Routes
   app.get("/api/projects", (req, res) => {
-    const userEmail = req.query.email as string;
-    if (!userEmail) return res.status(400).json({ error: "Email required" });
-
     try {
-      const projects = db.prepare("SELECT * FROM projects WHERE user_email = ? ORDER BY created_at DESC").all(userEmail);
+      // Remove email filter to allow shared access as requested
+      const projects = db.prepare("SELECT * FROM projects ORDER BY created_at DESC").all();
       res.json(projects.map((p: any) => ({
         id: p.id,
         name: p.name,
@@ -58,15 +74,14 @@ async function startServer() {
   });
 
   app.post("/api/projects", (req, res) => {
-    const { id, userEmail, name, date, totalInk, totalArea, components } = req.body;
-    if (!userEmail) return res.status(400).json({ error: "Email required" });
-
+    const { id, userEmail, name, date, totalInkMl, totalArea, components } = req.body;
+    
     try {
       const stmt = db.prepare(`
         INSERT OR REPLACE INTO projects (id, user_email, name, date, total_ink, total_area, components_json)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `);
-      stmt.run(id, userEmail, name, date, totalInk, totalArea, JSON.stringify(components));
+      stmt.run(id, userEmail || 'anonymous', name, date, totalInkMl || 0, totalArea || 0, JSON.stringify(components));
       res.json({ success: true });
     } catch (error) {
       console.error("Error saving project:", error);
