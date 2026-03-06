@@ -445,9 +445,9 @@ export default function App() {
               <motion.div 
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="w-24 h-24 rounded-full bg-white p-2 shadow-[0_0_50px_rgba(255,255,255,0.2)]"
+                className="w-32 h-32 rounded-full bg-white shadow-[0_0_50px_rgba(255,255,255,0.3)] overflow-hidden border-4 border-white/20"
               >
-                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" />
+                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" />
               </motion.div>
               
               <div className="text-center space-y-2">
@@ -505,7 +505,26 @@ export default function App() {
                 </form>
               </div>
 
-              <p className="text-[10px] text-white/20 uppercase font-bold tracking-widest">Desarrollado por Munkie Digital Ecuador</p>
+              <div className="flex items-center justify-center gap-6 py-4">
+                <SocialIcon href="https://instagram.com/bryant_ldu" delay={0}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E4405F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </SocialIcon>
+                <SocialIcon href="https://facebook.com/bryant.ldu" delay={0.2}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1877F2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </SocialIcon>
+                <SocialIcon href="https://wa.me/593998257855" delay={0.4}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </SocialIcon>
+              </div>
+
+              <a 
+                href="https://munkiedigitalecuador.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[10px] text-white/20 uppercase font-bold tracking-widest hover:text-brand-accent transition-colors text-center"
+              >
+                Desarrollado por Munkie Digital Ecuador © 2026 Todos los derechos reservados
+              </a>
             </div>
           </motion.div>
         )}
@@ -1211,9 +1230,9 @@ export default function App() {
                       </div>
                     </div>
                   ) : (
-                    projects.map(p => (
+                    projects.map((p, idx) => (
                       <motion.div 
-                        key={p.id} 
+                        key={`history-${p.id}-${idx}`} 
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         onClick={() => loadProject(p)}
@@ -1334,9 +1353,9 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {projects.map(p => (
+                        {projects.map((p, idx) => (
                           <motion.div 
-                            key={p.id}
+                            key={`dashboard-${p.id}-${idx}`}
                             layoutId={p.id}
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -1367,7 +1386,7 @@ export default function App() {
                               <div className="flex items-center justify-between">
                                 <div className="flex -space-x-2">
                                   {p.components.slice(0, 3).map((c, i) => (
-                                    <div key={i} className="w-6 h-6 rounded-full bg-brand-accent/20 border border-brand-bg flex items-center justify-center text-[8px] font-bold text-brand-accent">
+                                    <div key={`${p.id}-comp-${c.id}-${i}`} className="w-6 h-6 rounded-full bg-brand-accent/20 border border-brand-bg flex items-center justify-center text-[8px] font-bold text-brand-accent">
                                       {c.name.charAt(0)}
                                     </div>
                                   ))}
@@ -1405,30 +1424,32 @@ export default function App() {
 
       {/* Credits Footer */}
       <footer className="text-[10px] md:text-xs font-black text-white/30 uppercase tracking-[0.3em] text-center py-2 md:py-4 shrink-0 px-4">
-        desarrollado con amor por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">munkiedigitalecuador</a> © 2026
+        desarrollado por <a href="https://munkiedigitalecuador.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-brand-accent hover:underline">Munkie Digital Ecuador</a> © 2026 Todos los derechos reservados
       </footer>
 
-      {/* Social Bubbles - Visible in all modes */}
-      <div className="flex fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex-col gap-4 md:gap-6 z-[300]">
-        <SocialIcon 
-          href="https://instagram.com/bryant_ldu" 
-          delay={0}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E4405F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-        </SocialIcon>
-        <SocialIcon 
-          href="https://facebook.com/bryant.ldu" 
-          delay={0.5}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1877F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-        </SocialIcon>
-        <SocialIcon 
-          href="https://wa.me/593998257855" 
-          delay={1}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        </SocialIcon>
-      </div>
+      {/* Social Bubbles - Visible only when logged in */}
+      {userRole && (
+        <div className="flex fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex-col gap-4 md:gap-6 z-[300]">
+          <SocialIcon 
+            href="https://instagram.com/bryant_ldu" 
+            delay={0}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E4405F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </SocialIcon>
+          <SocialIcon 
+            href="https://facebook.com/bryant.ldu" 
+            delay={0.5}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1877F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </SocialIcon>
+          <SocialIcon 
+            href="https://wa.me/593998257855" 
+            delay={1}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </SocialIcon>
+        </div>
+      )}
 
       {/* Mobile Navigation Bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6">
