@@ -43,6 +43,13 @@ const INITIAL_INKS: InkComponent[] = [
 
 const LOGO_URL = "https://munkiedigitalecuador.vercel.app/lovable-uploads/d595f062-6436-48e6-a22a-91aa6e4e8169.png";
 
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+};
+
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectName, setProjectName] = useState('');
@@ -218,7 +225,7 @@ export default function App() {
     }
 
     const component: ProjectComponent = {
-      id: editingId || crypto.randomUUID(),
+      id: editingId || generateId(),
       name: newComp.name,
       substrateType: newComp.substrateType,
       width,
@@ -315,7 +322,7 @@ export default function App() {
 
     const isEditing = !!editingProjectId;
     const project: Project = {
-      id: editingProjectId || crypto.randomUUID(),
+      id: editingProjectId || generateId(),
       name: projectName,
       date: new Date().toLocaleString(),
       components: [...components],
@@ -1078,9 +1085,9 @@ export default function App() {
                           </div>
                         </div>
                       ) : (
-                        components.map(comp => (
+                        components.map((comp, idx) => (
                           <motion.div 
-                            key={comp.id}
+                            key={`${comp.id}-${idx}`}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}

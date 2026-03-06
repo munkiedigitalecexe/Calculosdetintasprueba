@@ -64,7 +64,10 @@ async function startServer() {
           .select('*')
           .order('created_at', { ascending: false });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase error fetching projects:", JSON.stringify(error, null, 2));
+          throw error;
+        }
         
         return res.json(data.map((p: any) => ({
           id: p.id,
@@ -113,7 +116,10 @@ async function startServer() {
             components_json: components
           });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase error saving project:", JSON.stringify(error, null, 2));
+          throw error;
+        }
         return res.json({ success: true });
       }
 
