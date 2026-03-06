@@ -125,6 +125,12 @@ export default function App() {
     localStorage.setItem('mnk_ink_current_components', JSON.stringify(components));
   }, [components]);
 
+  const maskEmail = (email: string) => {
+    if (!email) return '';
+    const [local] = email.split('@');
+    return `${local.substring(0, 2)}•••••••@•••••••`;
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const email = loginEmail.toLowerCase().trim();
@@ -588,7 +594,7 @@ export default function App() {
                   {userRole === 'admin' ? 'admin' : 'guest'}
                 </div>
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1.5 rounded-lg border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                  {userEmail}
+                  {maskEmail(userEmail)}
                 </div>
               </div>
               <div className="flex items-center gap-4 mt-3">
