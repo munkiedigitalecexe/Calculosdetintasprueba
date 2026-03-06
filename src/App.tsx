@@ -100,6 +100,20 @@ export default function App() {
         console.error("Failed to load projects", e);
       }
     }
+
+    // Fetch projects from server
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/api/projects');
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error("Error fetching projects from server:", error);
+      }
+    };
+    fetchProjects();
     
     const savedCurrentName = localStorage.getItem('mnk_ink_current_name');
     if (savedCurrentName) setProjectName(savedCurrentName);
@@ -271,7 +285,7 @@ export default function App() {
     return { totalArea, totalInk, totalProjects };
   }, [projects]);
 
-  const saveProject = () => {
+  const saveProject = async () => {
     if (!projectName) {
       alert("Nombre del proyecto requerido");
       return;
@@ -289,13 +303,36 @@ export default function App() {
       ...totals
     };
 
+    // Save to server
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(project)
+      });
+      if (!response.ok) throw new Error('Failed to save to server');
+    } catch (error) {
+      console.error("Error saving project to server:", error);
+      alert("Error al sincronizar con el servidor. Se guardará localmente.");
+    }
+
     setProjects(prev => [project, ...prev]);
     setProjectName('');
     setComponents([]);
     setCurrentView('dashboard');
   };
 
-  const deleteProject = (id: string) => {
+  const deleteProject = async (id: string) => {
+    // Delete from server
+    try {
+      const response = await fetch(`/api/projects/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete from server');
+    } catch (error) {
+      console.error("Error deleting project from server:", error);
+    }
+
     setProjects(prev => prev.filter(p => p.id !== id));
   };
 
@@ -538,8 +575,8 @@ export default function App() {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="bg-brand-accent/95 backdrop-blur-2xl text-black px-10 py-4 rounded-full shadow-[0_0_50px_rgba(196,255,14,0.5)] border border-white/20 flex items-center gap-4 pointer-events-auto"
             >
-              <div className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center p-1.5 shadow-inner">
-                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+              <div className="w-10 h-10 rounded-full bg-white overflow-hidden flex items-center justify-center shadow-inner border border-white/20">
+                <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none opacity-60">
@@ -567,11 +604,11 @@ export default function App() {
         {/* Sidebar - Desktop Only */}
         <aside className="hidden md:flex w-24 glass-card flex-col items-center py-10 gap-10 shrink-0 z-50">
           <div 
-            className="w-12 h-12 rounded-full overflow-hidden bg-white p-1 cursor-pointer hover:scale-105 transition-transform shadow-lg border border-white/10"
+            className="w-12 h-12 rounded-full overflow-hidden bg-white cursor-pointer hover:scale-105 transition-transform shadow-lg border border-white/10"
             onClick={() => window.location.href = '/'}
             title="Ir al Dashboard"
           >
-            <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+            <img src={LOGO_URL} alt="Logo" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
           </div>
           
           <nav className="flex flex-col gap-6 flex-1 justify-center">
@@ -625,8 +662,8 @@ export default function App() {
                 Diseñado y desarrollado con ❤️ por<br/>
                 <span className="text-brand-accent">Munkie Digital Ecuador</span>
               </a>
-              <div className="w-14 h-14 rounded-full border-2 border-brand-accent p-0.5 shadow-[0_0_25px_rgba(196,255,14,0.4)] bg-brand-bg relative group cursor-pointer">
-                <img src={LOGO_URL} alt="User" className="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+              <div className="w-14 h-14 rounded-full border-2 border-brand-accent overflow-hidden shadow-[0_0_25px_rgba(196,255,14,0.4)] bg-white relative group cursor-pointer">
+                <img src={LOGO_URL} alt="User" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-brand-accent text-black text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg whitespace-nowrap">
                   {userRole === 'admin' ? 'admin' : 'guest'}
                 </div>
