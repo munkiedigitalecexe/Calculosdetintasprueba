@@ -465,12 +465,12 @@ export default function App() {
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Acceso Administrador (Correo)</label>
+                    <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-2">Acceso Administrador</label>
                     <input 
                       type="email" 
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="bryanstalin11@gmail.com"
+                      placeholder="mail@munkiedigitalec.com"
                       className="w-full bg-white/[0.03] border border-white/10 rounded-2xl h-14 px-6 text-sm font-bold focus:outline-none focus:border-brand-accent/50 focus:bg-white/[0.05] transition-all"
                       required
                     />
