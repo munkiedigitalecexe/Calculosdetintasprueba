@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 // Supabase Setup
 const supabaseUrl = process.env.SUPABASE_URL || "https://ryribunuudxgbexllbxe.supabase.co";
-const supabaseKey = process.env.SUPABASE_ANON_KEY || "sb_publishable_9ymMbI_vKDPxpN0hZNnvVw_CWLq9j8b";
+const supabaseKey = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5cmlidW51dWR4Z2JleGxsYnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDU3NTUsImV4cCI6MjA4ODM4MTc1NX0.5aWq4LDpq7--DBYu-xUPK6geRk3xetKqfl2KTzQz1rk";
 
 // Only initialize if we have both URL and Key
 let supabase: any = null;
