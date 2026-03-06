@@ -55,6 +55,20 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Health check
+  app.get("/api/health", async (req, res) => {
+    try {
+      if (supabase) {
+        const { error } = await supabase.from('projects').select('id').limit(1);
+        if (error) throw error;
+        return res.json({ status: "online", database: "supabase" });
+      }
+      res.json({ status: "online", database: "sqlite" });
+    } catch (error) {
+      res.status(500).json({ status: "offline", error: "Database connection failed" });
+    }
+  });
+
   // API Routes
   app.get("/api/projects", async (req, res) => {
     try {
